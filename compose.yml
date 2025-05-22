@@ -1,0 +1,14 @@
+version: '3.8'
+name: 'apis-api-dev-database'
+volumes:
+  psql_data:
+    driver: local
+services:
+  psql:
+    image: postgres:latest
+    container_name: psql
+    restart: always
+    env_file: ".env.db"
+    volumes:
+      - psql_data:/var/lib/postgresql/data
+      #- ./seeds/seed_data.sql:/docker-entrypoint-initdb.d/seed_data.sql

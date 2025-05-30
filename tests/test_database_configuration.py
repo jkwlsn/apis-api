@@ -1,18 +1,16 @@
 """Test the configuration values are loaded from env files"""
 
-from lib.config import DatabaseConfiguration
+from lib.database_configuration import DatabaseConfiguration
 
 
 def test_configuration_file_exists() -> None:
     db_conf = DatabaseConfiguration()
-    print(db_conf)
     assert db_conf is not None
 
 
 def test_default_configuration_values() -> None:
     db_conf = DatabaseConfiguration()
-    print(db_conf.__dict__)
-    assert db_conf.host == "psql"
+    assert db_conf.host == "localhost"
     assert db_conf.port == "5432"
     assert db_conf.user == "admin"
     assert db_conf.dbname == "apis_database"
@@ -20,8 +18,7 @@ def test_default_configuration_values() -> None:
 
 
 def test_invalid_configuration_file() -> None:
-    db_conf = DatabaseConfiguration("invalid_filename")
-    print(db_conf.__dict__)
+    db_conf = DatabaseConfiguration("invalid_filename.txt")
     assert db_conf.host is None
     assert db_conf.port is None
     assert db_conf.user is None

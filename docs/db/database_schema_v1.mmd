@@ -1,50 +1,50 @@
 erDiagram
-    User {
-        INT id PK
+    users {
+        INT user_id PK
         TEXT username
         TEXT password
     }
-    User ||--o{ Sessions : has
-    Sessions {
-        INT id PK
-        TIMESTAMPTZ start_time
+    users ||--o{ sessions : has
+    sessions {
+        INT session_id PK
+        TIMESTAMPTZ session_start
         INT user_id FK
     }
-    User ||--o{ Apiary : has
-    Apiary {
-        INT id PK
+    users ||--o{ apiaries : has
+    apiaries {
+        INT apiary_id PK
         TEXT name
         TEXT location
         TEXT user_id FK
     }
-    Apiary ||--o{ Hive : has
-    Hive {
-        INT id PK
+    apiaries ||--o{ hives : has
+    hives {
+        INT hive_id PK
         TEXT name
         INT apiary_id FK
     }
-    Hive ||--o| Colony : has
-    Colony {
-        INT id PK
+    hives ||--o| colonies : has
+    colonies {
+        INT colony_id PK
         INT hive_id FK
     }
-    Colony ||--o{ Queen : has
-    Queen {
-        INT id PK
+    colonies ||--o{ queens : has
+    queens {
+        INT queen_id PK
         TEXT colour
         BOOL clipped
         INT colony_id FK
     }
-    Colony ||--o{ Inspection : has
-    Inspection {
-        INT id PK
-        TIMESTAMPTZ timestamp
+    colonies ||--o{ inspections : has
+    inspections {
+        INT inspection_id PK
+        TIMESTAMPTZ inspection_timestamp
         INT colony_id FK
     }
-    Inspection ||--o{ Observation : has
-    Observation {
-        INT id PK
-        BOOL queen
+    inspections ||--o{ observations : has
+    observations {
+        INT observation_id PK
+        BOOL queenright
         INT queen_cells
         BOOL bias
         INT brood
@@ -57,10 +57,9 @@ erDiagram
         TEXT notes
         INT inspection_id FK
     }
-    Inspection ||--o{ Action : has
-    Action {
-        INT id PK
-        INT feed
+    inspections ||--o{ actions : has
+    actions {
+        INT action_id PK
         TEXT notes
         INT inspection_id FK
     }

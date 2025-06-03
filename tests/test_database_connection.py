@@ -1,15 +1,13 @@
 """Test connection to the postgres database"""
 
-from lib.database_configuration import DatabaseConfiguration
+import pytest
 
 from lib.database_connection import DatabaseConnection
 
-import pytest
-
 
 def test_invalid_connection_configuration() -> None:
-    with pytest.raises(Exception) as e:
-        db = DatabaseConnection(host="invalid")
+    db = DatabaseConnection(host="invalid")
+    with pytest.raises(Exception, match="No address associated with hostname") as e:
         db.connect()
     assert (
         str(e.value)
@@ -30,16 +28,19 @@ def test_close_connection() -> None:
     db.close()
     assert db.connection.closed is True
 
+
 def test_invalid_execute() -> None:
     db = DatabaseConnection()
     assert db.execute("SELECT * FROM users;") is None
 
+
 def test_invalid_seed_filename() -> None:
     db = DatabaseConnection()
     db.connect()
-    with pytest.raises(Exception) as e:
+    with pytest.raises(Exception, match="invalid_test_filename") as e:
         db.seed("invalid_test_filename")
     assert str(e.value) == "invalid_test_filename does not exist"
+
 
 def test_valid_seed_data() -> None:
     db = DatabaseConnection()

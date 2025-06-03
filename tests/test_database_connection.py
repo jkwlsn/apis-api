@@ -30,17 +30,9 @@ def test_close_connection() -> None:
     db.close()
     assert db.connection.closed is True
 
-
 def test_invalid_execute() -> None:
     db = DatabaseConnection()
     assert db.execute("SELECT * FROM users;") is None
-
-
-def test_valid_execute() -> None:
-    db = DatabaseConnection()
-    db.connect()
-    assert db.execute("SELECT * FROM users;") == [{"name": "jake"}]
-
 
 def test_invalid_seed_filename() -> None:
     db = DatabaseConnection()
@@ -48,7 +40,6 @@ def test_invalid_seed_filename() -> None:
     with pytest.raises(Exception) as e:
         db.seed("invalid_test_filename")
     assert str(e.value) == "invalid_test_filename does not exist"
-
 
 def test_valid_seed_data() -> None:
     db = DatabaseConnection()

@@ -1,0 +1,66 @@
+erDiagram
+    User {
+        INT id PK
+        TEXT username
+        TEXT password
+    }
+    User ||--o{ Sessions : has
+    Sessions {
+        INT id PK
+        TIMESTAMPTZ start_time
+        INT user_id FK
+    }
+    User ||--o{ Apiary : has
+    Apiary {
+        INT id PK
+        TEXT name
+        TEXT location
+        TEXT user_id FK
+    }
+    Apiary ||--o{ Hive : has
+    Hive {
+        INT id PK
+        TEXT name
+        INT apiary_id FK
+    }
+    Hive ||--o| Colony : has
+    Colony {
+        INT id PK
+        INT hive_id FK
+    }
+    Colony ||--o{ Queen : has
+    Queen {
+        INT id PK
+        TEXT colour
+        BOOL clipped
+        INT colony_id FK
+    }
+    Colony ||--o{ Inspection : has
+    Inspection {
+        INT id PK
+        TIMESTAMPTZ timestamp
+        INT colony_id FK
+    }
+    Inspection ||--o{ Observation : has
+    Observation {
+        INT id PK
+        BOOL queen
+        INT queen_cells
+        BOOL bias
+        INT brood
+        INT stores
+        INT room
+        BOOL chalk_brood
+        BOOL foul_brood
+        INT varroa_count
+        INT temper
+        TEXT notes
+        INT inspection_id FK
+    }
+    Inspection ||--o{ Action : has
+    Action {
+        INT id PK
+        INT feed
+        TEXT notes
+        INT inspection_id FK
+    }

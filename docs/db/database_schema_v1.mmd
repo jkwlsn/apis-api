@@ -4,52 +4,51 @@ erDiagram
         TEXT username
         TEXT password
     }
-    users ||--o{ sessions : has
+    users ||--o{ sessions : have
     sessions {
         INT session_id PK
         TIMESTAMPTZ session_start
         INT user_id FK
     }
-    users ||--o{ apiaries : has
+    users ||--o{ apiaries : have
     apiaries {
         INT apiary_id PK
         TEXT name
         TEXT location
         TEXT user_id FK
     }
-    apiaries ||--o{ hives : has
+    apiaries ||--o{ hives : have
     hives {
         INT hive_id PK
         TEXT name
         INT apiary_id FK
     }
-    hives ||--o| colonies : has
+    hives ||--o| colonies : have
     colonies {
         INT colony_id PK
         INT hive_id FK
     }
-    colonies ||--o{ queens : has
+    colonies ||--o{ queens : have
     queens {
         INT queen_id PK
-        TEXT colour
+        ENUM colour
         BOOL clipped
         INT colony_id FK
     }
-    colonies ||--o{ inspections : has
+    colonies ||--o{ inspections : have
     inspections {
         INT inspection_id PK
         TIMESTAMPTZ inspection_timestamp
         INT colony_id FK
     }
-    inspections ||--o{ observations : has
+    inspections ||--o{ observations : have
     observations {
         INT observation_id PK
         BOOL queenright
         INT queen_cells
         BOOL bias
-        INT brood
-        INT stores
-        INT room
+        INT brood_frames
+        INT store_frames
         BOOL chalk_brood
         BOOL foul_brood
         INT varroa_count
@@ -57,7 +56,7 @@ erDiagram
         TEXT notes
         INT inspection_id FK
     }
-    inspections ||--o{ actions : has
+    inspections ||--o{ actions : have
     actions {
         INT action_id PK
         TEXT notes

@@ -74,7 +74,3 @@ class DatabaseConnection:
         except FileNotFoundError as e:
             error_message = f"{sql_file_name} does not exist: {e}"
             raise FileNotFoundError(error_message) from e
-
-        except psycopg.Error as e:
-            error_message = f"Error executing SQL seed on {self.dbname}: {e}"
-            raise RuntimeError(error_message) from e

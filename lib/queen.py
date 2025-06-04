@@ -4,7 +4,7 @@ from dataclasses import dataclass
 
 
 @dataclass
-class Colony:
+class Queen:
     """Models queens in the database"""
 
     queen_id: int
@@ -14,5 +14,5 @@ class Colony:
 
     def __str__(self) -> str:
         return (
-            f"Colony({self.colony_id}, {self.colour}, {self.clipped}, {self.colony_id})"
+            f"Queen({self.queen_id}, {self.colour}, {self.clipped}, {self.colony_id})"
         )

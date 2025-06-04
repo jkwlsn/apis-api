@@ -5,6 +5,7 @@ lint.select = [
 ]
 lint.ignore = [
     #### specific rules
+    "CPY001",   # Prevent warning about copyright
     "D101",
     "D102",
     "D103",

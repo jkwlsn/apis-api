@@ -5,6 +5,7 @@ lint.select = [
 ]
 lint.ignore = [
     #### specific rules
+    "CPY001",   # Prevent warning about copyright
     "D101",
     "D102",
     "D103",
@@ -31,4 +32,6 @@ lint.ignore = [
 [tool.ruff.lint.per-file-ignores]
 "tests/**/*.py" = [
     "S101", # asserts allowed in tests
+    "S105", # Allow hardcoded passwords in test files
+    "PLR2004", # Allow magic numbers in test files
 ]

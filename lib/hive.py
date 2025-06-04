@@ -5,7 +5,7 @@ from dataclasses import dataclass
 
 @dataclass
 class Hive:
-    """Class models system apiaries in the database"""
+    """Class models hives in the database"""
 
     hive_id: int
     name: str

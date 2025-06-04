@@ -1,15 +1,15 @@
 """Read configuration values from .env.db file"""
 
-import os
+from dataclasses import dataclass
+from pathlib import Path
 
 from dotenv import dotenv_values
-from dataclasses import dataclass
 
 
 @dataclass
 class DatabaseConfiguration:
     def __init__(self, filename: str = ".env.db") -> None:
-        if os.path.exists(filename):
+        if Path.exists(filename):
             config: dict[str, str] | None = dotenv_values(filename)
             self.host: str | None = config.get("POSTGRES_HOST")
             self.port: str | None = config.get("POSTGRES_PORT")

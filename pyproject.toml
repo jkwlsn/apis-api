@@ -33,4 +33,5 @@ lint.ignore = [
 "tests/**/*.py" = [
     "S101", # asserts allowed in tests
     "S105", # Allow hardcoded passwords in test files
+    "PLR2004", # Allow magic numbers in test files
 ]

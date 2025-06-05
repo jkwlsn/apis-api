@@ -5,7 +5,7 @@ import zoneinfo
 
 import pytest
 
-from lib.session import Session
+from models.session import Session
 
 
 @pytest.fixture

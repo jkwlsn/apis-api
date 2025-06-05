@@ -2,7 +2,7 @@
 
 import pytest
 
-from lib.colony import Colony
+from models.colony import Colony
 
 
 class TestColony:

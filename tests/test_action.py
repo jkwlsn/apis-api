@@ -2,7 +2,7 @@
 
 import pytest
 
-from lib.action import Action
+from models.action import Action
 
 
 @pytest.fixture

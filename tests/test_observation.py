@@ -2,14 +2,14 @@
 
 import pytest
 
-from lib.observation import Observation
+from models.observation import Observation
 
 
 @pytest.fixture
 def test_observation() -> Observation:
     queenright: bool = True
     bias: bool = True
-    chalk_brood: bool = True
+    chalk_brood: bool = False
     foul_brood: bool = False
     return Observation(
         1, queenright, 5, bias, 4, 6, chalk_brood, foul_brood, 10, 3, "Example notes", 1
@@ -20,7 +20,7 @@ def test_observation() -> Observation:
 def test_observation_2() -> Observation:
     queenright: bool = True
     bias: bool = True
-    chalk_brood: bool = True
+    chalk_brood: bool = False
     foul_brood: bool = False
     return Observation(
         1, queenright, 5, bias, 4, 6, chalk_brood, foul_brood, 10, 3, "Example notes", 1

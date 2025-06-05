@@ -2,7 +2,7 @@
 
 import pytest
 
-from lib.database_connection import DatabaseConnection
+from db.database_connection import DatabaseConnection
 
 
 class TestDatabaseConnection:
@@ -45,10 +45,7 @@ class TestDatabaseConnection:
         db = DatabaseConnection()
         with pytest.raises(ConnectionError) as e:
             db.seed("seeds/valid_test_data.sql")
-        assert (
-            str(e.value)
-            == "Cannot connect to localhost:5432/apis_database"
-        )
+        assert str(e.value) == "Cannot connect to localhost:5432/apis_database"
 
     def test_valid_seed_data(self) -> None:
         db = DatabaseConnection()

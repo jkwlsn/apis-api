@@ -1,8 +1,7 @@
 """Pytest module for testing the Apiary class"""
 
 import pytest
-
-from lib.apiary import Apiary
+from models.apiary import Apiary
 
 
 class TestApiary:

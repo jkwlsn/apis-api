@@ -2,7 +2,7 @@
 
 import pytest
 
-from lib.hive import Hive
+from models.hive import Hive
 
 
 class TestHive:

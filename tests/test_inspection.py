@@ -5,7 +5,7 @@ import zoneinfo
 
 import pytest
 
-from lib.inspection import Inspection
+from models.inspection import Inspection
 
 
 @pytest.fixture

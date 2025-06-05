@@ -5,24 +5,30 @@ import pytest
 from lib.user import User
 
 
+@pytest.fixture
+def test_user() -> User:
+    return User(1, "test_username", "test_password")
+
+
+@pytest.fixture
+def test_user_2() -> User:
+    return User(1, "test_username", "test_password")
+
+
 class TestUser:
-    def test_user_instance_constructs(pytest) -> None:
+    def test_user_instance_constructs(self, test_user: User) -> None:
         """Test user constructs with user_id, username, and password."""
-        user = User(1, "test_username", "test_password")
-        assert user.user_id == 1
-        assert user.username == "test_username"
-        assert user.password == "test_password"
+        assert test_user.user_id == 1
+        assert test_user.username == "test_username"
+        assert test_user.password == "test_password"
 
-    def test_user_instance_pretty_prints(pytest) -> None:
+    def test_user_instance_pretty_prints(self, test_user: User) -> None:
         """Test __str__ dunder method pretty prints user instance."""
-        user = User(1, "test_username", "test_password")
-        assert str(user) == "User(1, test_username, test_password)"
+        assert str(test_user) == "User(1, test_username, test_password)"
 
-    def test_user_instances_are_equal(pytest) -> None:
+    def test_user_instances_are_equal(self, test_user: User, test_user_2: User) -> None:
         """Test __eq__ dunder method is true"""
-        user_1 = User(1, "test_username", "test_password")
-        user_2 = User(1, "test_username", "test_password")
-        assert user_1 == user_2
+        assert test_user == test_user_2
 
 
 if __name__ == "__main__":

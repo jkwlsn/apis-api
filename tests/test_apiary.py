@@ -1,6 +1,7 @@
 """Pytest module for testing the Apiary class"""
 
 import pytest
+
 from models.apiary import Apiary
 
 

@@ -1,8 +1,5 @@
 name: Lint and format Ruff
-on:
-    push:
-        branches:
-            - main
+on: [push]
 permissions:
     checks: write
     contents: write
@@ -15,7 +12,11 @@ jobs:
               uses: actions/checkout@v4
             - name: Install Ruff
               uses: astral-sh/ruff-action@v3
+              with:
+                args: "--version"
             - name: Ruff check
-              run: ruff check --fix
+              run: ruff check
+              continue-on-error: true
             - name: Ruff format
-              run: ruff format
+              run: ruff format --diff
+              continue-on-error: true

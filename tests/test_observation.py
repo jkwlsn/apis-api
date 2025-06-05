@@ -7,12 +7,24 @@ from lib.observation import Observation
 
 @pytest.fixture
 def test_observation() -> Observation:
-    return Observation(1, True, 5, True, 4, 6, False, False, 10, 3, "Example notes", 1)
+    queenright: bool = True
+    bias: bool = True
+    chalk_brood: bool = True
+    foul_brood: bool = False
+    return Observation(
+        1, queenright, 5, bias, 4, 6, chalk_brood, foul_brood, 10, 3, "Example notes", 1
+    )
 
 
 @pytest.fixture
 def test_observation_2() -> Observation:
-    return Observation(1, True, 5, True, 4, 6, False, False, 10, 3, "Example notes", 1)
+    queenright: bool = True
+    bias: bool = True
+    chalk_brood: bool = True
+    foul_brood: bool = False
+    return Observation(
+        1, queenright, 5, bias, 4, 6, chalk_brood, foul_brood, 10, 3, "Example notes", 1
+    )
 
 
 class TestObservation:

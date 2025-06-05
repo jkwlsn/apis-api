@@ -2,7 +2,7 @@
 
 import pytest
 
-from lib.queen import Queen
+from models.queen import Queen
 
 
 @pytest.fixture

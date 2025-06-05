@@ -6,16 +6,17 @@ import zoneinfo
 import psycopg
 import pytest
 
-from lib.database_connection import DatabaseConnection
+from db.database_connection import DatabaseConnection
 
 
 @pytest.fixture
 def db() -> None:
     db = DatabaseConnection()
     db.connect()
-    db.seed("./db/schema.sql")
+    db.seed("./sql/schema.sql")
     db.execute("INSERT INTO users (username, password) VALUES ('jake', 'password');")
     return db
+
 
 class TestSqlSchema:
     def test_users_table_seeded_correctly(self, db: psycopg.Connection) -> None:

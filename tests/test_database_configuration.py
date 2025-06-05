@@ -2,7 +2,7 @@
 
 import pytest
 
-from lib.database_configuration import DatabaseConfiguration
+from db.database_configuration import DatabaseConfiguration
 
 
 class TestDatabaseConfiguration:

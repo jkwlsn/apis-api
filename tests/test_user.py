@@ -2,7 +2,7 @@
 
 import pytest
 
-from lib.user import User
+from models.user import User
 
 
 @pytest.fixture

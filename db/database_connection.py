@@ -7,7 +7,7 @@ from psycopg.abc import Query
 from psycopg.conninfo import make_conninfo
 from psycopg.rows import dict_row
 
-from lib.database_configuration import DatabaseConfiguration
+from db.database_configuration import DatabaseConfiguration
 
 
 class DatabaseConnection:

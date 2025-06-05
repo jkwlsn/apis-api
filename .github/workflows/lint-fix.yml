@@ -1,5 +1,5 @@
 name: Lint and format Ruff
-on: [push]
+on: [pull_request]
 permissions:
     checks: write
     contents: write
@@ -16,7 +16,5 @@ jobs:
                 args: "--version"
             - name: Ruff check
               run: ruff check
-              continue-on-error: true
             - name: Ruff format
               run: ruff format --diff
-              continue-on-error: true

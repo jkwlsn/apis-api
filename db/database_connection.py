@@ -34,8 +34,7 @@ class DatabaseConnection:
         Open a connection to the database
 
         Raises:
-        ConnectionError:
-        Raises ConnectionError if no connection can be made to the configured database
+            ConnectionError: if no connection can be made to the configured database.
 
         """
         try:
@@ -44,7 +43,9 @@ class DatabaseConnection:
                 row_factory=dict_row,
             )
         except psycopg.OperationalError as e:
-            error_message = f"Couldn't connect to {self.dbname}: {e}"
+            error_message = (
+                f"Couldn't connect to {self.host}:{self.port}/{self.dbname}: {e}"
+            )
             raise ConnectionError(error_message) from e
 
     def close(self) -> None:
@@ -52,16 +53,43 @@ class DatabaseConnection:
         if self.connection and not self.connection.closed:
             self.connection.close()
 
-    def execute(self, query: Query, params: list | tuple = ()) -> list | None:
+    def execute(self, query: Query, params: list) -> list:
+        """
+        Execute queries on the database
+
+        Args:
+            query: SQL query formatted as a psycopg Query object
+            params: a list of parameters for the query
+
+        Returns:
+            A list of results
+
+        Raises:
+            ConnectionError: if no connection can be made to the configured database.
+
+        """
         if self.connection and not self.connection.closed:
+            error_message = f"No connection to {self.host}:{self.port}/{self.dbname}"
+            raise ConnectionError(error_message)
             with self.connection.cursor() as cursor:
                 cursor.execute(query, params)
-                return cursor.fetchall() if cursor.description else None
+                return cursor.fetchall() if cursor.description else []
         return None
 
     def seed(self, sql_file_name: str) -> None:
+        """
+        Seeds the database
+
+        Args:
+            sql_file_name: string pointing to sql seed file.
+
+        Raises:
+            ConnectionError: if no connection can be made to the configured database.
+            FileNotFoundError: if sql seed file cannot be found.
+
+        """
         if not self.connection or self.connection.closed:
-            error_message = f"Cannot connect to {self.host}:{self.port}/{self.dbname}"
+            error_message = f"No connection to {self.host}:{self.port}/{self.dbname}"
             raise ConnectionError(error_message)
         sql_file_path = Path(sql_file_name)
         try:

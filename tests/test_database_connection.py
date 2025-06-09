@@ -12,7 +12,7 @@ class TestDatabaseConnection:
             db.connect()
         assert (
             str(e.value)
-            == "Couldn't connect to apis_database: [Errno -2] Name or service not known"
+            == """Couldn't connect to invalid:5432/apis_database: [Errno -2] Name or service not known"""
         )
 
     def test_valid_connection_configuration(self) -> None:
@@ -29,7 +29,9 @@ class TestDatabaseConnection:
 
     def test_invalid_execute(self) -> None:
         db = DatabaseConnection()
-        assert db.execute("SELECT * FROM users;") is None
+        with pytest.raises(ConnectionError) as e:
+            db.execute("SELECT * FROM users;", [])
+        assert str(e.value) == "No connection to localhost:5432/apis_database"
 
     def test_invalid_seed_filename(self) -> None:
         db = DatabaseConnection()
@@ -45,15 +47,14 @@ class TestDatabaseConnection:
         db = DatabaseConnection()
         with pytest.raises(ConnectionError) as e:
             db.seed("seeds/valid_test_data.sql")
-        assert str(e.value) == "Cannot connect to localhost:5432/apis_database"
+        assert str(e.value) == "No connection to localhost:5432/apis_database"
 
     def test_valid_seed_data(self) -> None:
         db = DatabaseConnection()
         db.connect()
         db.seed("seeds/valid_test_data.sql")
-        assert db.execute("SELECT * FROM test_seed_data;") == [
-            {"id": 1, "name": "jake"}
-        ]
+        results = db.execute("SELECT * FROM test_seed_data;", [])
+        assert results == [{"id": 1, "name": "jake"}]
 
 
 if __name__ == "__main__":

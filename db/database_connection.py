@@ -12,13 +12,13 @@ from db.database_configuration import DatabaseConfiguration
 
 class DatabaseConnection:
     def __init__(self, **kwargs: str) -> None:
-        self.connection: psycopg.Connection | None = None
         db: DatabaseConfiguration = DatabaseConfiguration()
         self.host: str | None = kwargs.get("host", db.host)
         self.port: str | None = kwargs.get("port", db.port)
         self.user: str | None = kwargs.get("user", db.user)
         self.password: str | None = kwargs.get("password", db.password)
         self.dbname: str | None = kwargs.get("dbname", db.dbname)
+        self.connection: psycopg.Connection | None = None
 
     def _build_connection_string(self) -> str:
         return make_conninfo(
@@ -53,7 +53,7 @@ class DatabaseConnection:
         if self.connection and not self.connection.closed:
             self.connection.close()
 
-    def execute(self, query: Query, params: list) -> list:
+    def execute(self, query: Query, params: list) -> list | None:
         """
         Execute queries on the database
 
@@ -69,12 +69,11 @@ class DatabaseConnection:
 
         """
         if self.connection and not self.connection.closed:
-            error_message = f"No connection to {self.host}:{self.port}/{self.dbname}"
-            raise ConnectionError(error_message)
             with self.connection.cursor() as cursor:
                 cursor.execute(query, params)
-                return cursor.fetchall() if cursor.description else []
-        return None
+                return cursor.fetchall() if cursor.description else None
+        error_message = f"No connection to {self.host}:{self.port}/{self.dbname}"
+        raise ConnectionError(error_message)
 
     def seed(self, sql_file_name: str) -> None:
         """

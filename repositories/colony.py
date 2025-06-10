@@ -48,3 +48,9 @@ class ColonyRepository:
             if results:
                 return Colony(results[0]["colony_id"], hive_id)
         return None
+
+    def delete(self, colony_id: int) -> bool:
+        query: str = "DELETE FROM colonies WHERE colony_id = %s"
+        params: list[int] = [colony_id]
+        results: list[dict] | None = self.db.execute(query, params)
+        return bool(results)

@@ -34,8 +34,8 @@ class ColonyRepository:
 
     def read(self) -> list[Colony] | None:
         query: str = "SELECT * FROM colonies;"
-        params = []
-        results = self.db.execute(query, params)
+        params: list = []
+        results: list[dict] | None = self.db.execute(query, params)
         if results:
             return [Colony(row["colony_id"], row["hive_id"]) for row in results]
         return None

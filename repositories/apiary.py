@@ -29,3 +29,19 @@ class ApiaryRepository:
                 results[0]["user_id"],
             )
         return None
+
+    def find_by_user_id(self, user_id: int) -> list[Apiary] | None:
+        query: str = "SELECT * FROM apiaries WHERE user_id = %s;"
+        params: list[int] = [user_id]
+        results: list[dict] | None = self.db.execute(query, params)
+        if results:
+            return [
+                Apiary(
+                    row["apiary_id"],
+                    row["name"],
+                    row["location"],
+                    row["user_id"],
+                )
+                for row in results
+            ]
+        return None

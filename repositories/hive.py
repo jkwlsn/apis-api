@@ -18,3 +18,14 @@ class HiveRepository:
             if results:
                 return Hive(results[0]["hive_id"], name, apiary_id)
         return None
+
+    def find_by_hive_id(self, hive_id: int) -> Hive | None:
+        if isinstance(hive_id, int):
+            query = "SELECT * FROM hives WHERE hive_id = %s LIMIT 1;"
+            params = [hive_id]
+            results = self.db.execute(query, params)
+            if results:
+                return Hive(
+                    results[0]["hive_id"], results[0]["name"], results[0]["apiary_id"]
+                )
+        return None

@@ -75,3 +75,33 @@ class TestColonyRepository:
             "SELECT * FROM colonies WHERE colony_id = %s LIMIT 1;", [999]
         )
         assert result is None
+
+    def test_can_find_colonies_by_valid_hive_id(self, mock_db: MagicMock) -> None:
+        mock_db.execute.return_value = [
+            {
+                "colony_id": self.test_colony.colony_id,
+                "hive_id": self.test_colony.hive_id,
+            }
+        ]
+        repo: ColonyRepository = ColonyRepository(db=mock_db)
+
+        result: Colony | None = repo.find_by_hive_id(self.test_colony.colony_id)
+
+        mock_db.execute.assert_called_once_with(
+            "SELECT * FROM colonies WHERE hive_id = %s LIMIT 1;",
+            [self.test_colony.colony_id],
+        )
+        assert isinstance(result, Colony)
+        assert result.colony_id == self.test_colony.colony_id
+        assert result.hive_id == self.test_colony.hive_id
+
+    def test_can_not_find_colony_by_invalid_hive_id(self, mock_db: MagicMock) -> None:
+        mock_db.execute.return_value = []
+        repo: ColonyRepository = ColonyRepository(db=mock_db)
+
+        result: Colony | None = repo.find_by_hive_id(999)
+
+        mock_db.execute.assert_called_once_with(
+            "SELECT * FROM colonies WHERE hive_id = %s LIMIT 1;", [999]
+        )
+        assert result is None

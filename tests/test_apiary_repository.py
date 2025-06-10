@@ -223,3 +223,24 @@ class TestApiaryRepository:
             ["BAD UPDATE", "Kent", 1, 999],
         )
         assert result is None
+
+    def test_can_delete_valid_apiary(self, mock_db: MagicMock) -> None:
+        """Respository CAN DELETE a single valid apiary in the database"""
+        mock_db.execute.return_value = [1]
+        repo: ApiaryRepository = ApiaryRepository(mock_db)
+        result: list[int] = repo.delete(1)
+        mock_db.execute.assert_called_once_with(
+            "DELETE FROM apiaries WHERE apiary_id = %s RETURNING apiary_id;",
+            [1],
+        )
+        assert result is True
+
+    def test_can_not_delete_invalid_apiary(self, mock_db: MagicMock) -> None:
+        """Respository CAN NOT DELETE an invalid apiary in the database"""
+        mock_db.execute.return_value = []
+        repo: ApiaryRepository = ApiaryRepository(mock_db)
+        result: list = repo.delete(999)
+        mock_db.execute.assert_called_once_with(
+            "DELETE FROM apiaries WHERE apiary_id = %s RETURNING apiary_id;", [999]
+        )
+        assert result is False

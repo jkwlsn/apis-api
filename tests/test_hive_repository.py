@@ -194,3 +194,24 @@ class TestHiveRepository:
             ["BAD UPDATE", 1, 1],
         )
         assert result is None
+
+    def test_can_delete_valid_hive(self, mock_db: MagicMock) -> None:
+        """Respository CAN DELETE a single valid hive in the database"""
+        mock_db.execute.return_value = [1]
+        repo: HiveRepository = HiveRepository(mock_db)
+        result: list[int] = repo.delete(1)
+        mock_db.execute.assert_called_once_with(
+            "DELETE FROM hives WHERE hive_id = %s RETURNING hive_id;",
+            [1],
+        )
+        assert result is True
+
+    def test_can_not_delete_invalid_hive(self, mock_db: MagicMock) -> None:
+        """Respository CAN NOT DELETE an invalid hive in the database"""
+        mock_db.execute.return_value = []
+        repo: HiveRepository = HiveRepository(mock_db)
+        result: list = repo.delete(999)
+        mock_db.execute.assert_called_once_with(
+            "DELETE FROM hives WHERE hive_id = %s RETURNING hive_id;", [999]
+        )
+        assert result is False

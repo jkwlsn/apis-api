@@ -45,3 +45,19 @@ class ApiaryRepository:
                 for row in results
             ]
         return None
+
+    def read(self) -> list[Apiary] | None:
+        query: str = "SELECT * FROM apiaries;"
+        params = []
+        results = self.db.execute(query, params)
+        if results:
+            return [
+                Apiary(
+                    row["apiary_id"],
+                    row["name"],
+                    row["location"],
+                    row["user_id"],
+                )
+                for row in results
+            ]
+        return None

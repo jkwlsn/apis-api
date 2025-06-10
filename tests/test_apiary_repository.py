@@ -141,3 +141,44 @@ class TestApiaryRepository:
             "SELECT * FROM apiaries WHERE user_id = %s;", [999]
         )
         assert result is None
+
+    def test_read_full_db_returns_all(self, mock_db: MagicMock) -> None:
+        mock_db.execute.return_value = [
+            {
+                "apiary_id": self.test_apiary.apiary_id,
+                "name": self.test_apiary.name,
+                "location": self.test_apiary.location,
+                "user_id": self.test_apiary.user_id,
+            },
+            {
+                "apiary_id": self.test_apiary_2.apiary_id,
+                "name": self.test_apiary_2.name,
+                "location": self.test_apiary_2.location,
+                "user_id": self.test_apiary_2.user_id,
+            },
+            {
+                "apiary_id": self.test_apiary_3.apiary_id,
+                "name": self.test_apiary_3.name,
+                "location": self.test_apiary_3.location,
+                "user_id": self.test_apiary_3.user_id,
+            },
+        ]
+        repo: ApiaryRepository = ApiaryRepository(db=mock_db)
+
+        results: list[Apiary] = repo.read()
+
+        mock_db.execute.assert_called_once_with("SELECT * FROM apiaries;", [])
+        assert isinstance(results, (list, Apiary))
+        assert results[0].apiary_id == 1
+        assert results[1].apiary_id == 2
+        assert results[2].apiary_id == 3
+
+    def test_read_empty_db_returns_none(self, mock_db: MagicMock) -> None:
+        """Respository returns None when there are no users in the db"""
+        mock_db.execute.return_value = []
+        repo: ApiaryRepository = ApiaryRepository(mock_db)
+
+        result: list[Apiary] = repo.read()
+
+        mock_db.execute.assert_called_once_with("SELECT * FROM apiaries;", [])
+        assert result is None

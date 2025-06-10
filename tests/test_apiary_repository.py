@@ -63,3 +63,37 @@ class TestApiaryRepository:
             ],
         )
         assert result is None
+
+    def test_can_find_apiary_by_valid_apiary_id(self, mock_db: MagicMock) -> None:
+        mock_db.execute.return_value = [
+            {
+                "apiary_id": self.test_apiary.apiary_id,
+                "name": self.test_apiary.name,
+                "location": self.test_apiary.location,
+                "user_id": self.test_apiary.user_id,
+            }
+        ]
+        repo: ApiaryRepository = ApiaryRepository(db=mock_db)
+
+        result: Apiary | None = repo.find_by_apiary_id(self.test_apiary.apiary_id)
+
+        mock_db.execute.assert_called_once_with(
+            "SELECT * FROM apiaries WHERE apiary_id = %s LIMIT 1;",
+            [self.test_apiary.apiary_id],
+        )
+        assert isinstance(result, Apiary)
+        assert result.apiary_id == self.test_apiary.apiary_id
+        assert result.name == self.test_apiary.name
+        assert result.location == self.test_apiary.location
+        assert result.user_id == self.test_apiary.user_id
+
+    def test_can_not_find_apiary_by_invalid_apiary_id(self, mock_db: MagicMock) -> None:
+        mock_db.execute.return_value = []
+        repo: ApiaryRepository = ApiaryRepository(db=mock_db)
+
+        result: Apiary | None = repo.find_by_apiary_id(999)
+
+        mock_db.execute.assert_called_once_with(
+            "SELECT * FROM apiaries WHERE apiary_id = %s LIMIT 1;", [999]
+        )
+        assert result is None

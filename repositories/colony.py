@@ -31,3 +31,11 @@ class ColonyRepository:
         if results:
             return Colony(results[0]["colony_id"], results[0]["hive_id"])
         return None
+
+    def read(self) -> list[Colony] | None:
+        query: str = "SELECT * FROM colonies;"
+        params = []
+        results = self.db.execute(query, params)
+        if results:
+            return [Colony(row["colony_id"], row["hive_id"]) for row in results]
+        return None

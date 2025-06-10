@@ -39,3 +39,12 @@ class ColonyRepository:
         if results:
             return [Colony(row["colony_id"], row["hive_id"]) for row in results]
         return None
+
+    def update(self, colony_id: int, hive_id: int) -> Colony | None:
+        if isinstance(hive_id, int):
+            query = "UPDATE colonies SET hive_id = %s WHERE colony_id = %s RETURNING colony_id;"
+            params = [hive_id, colony_id]
+            results = self.db.execute(query, params)
+            if results:
+                return Colony(results[0]["colony_id"], hive_id)
+        return None

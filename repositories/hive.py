@@ -29,3 +29,15 @@ class HiveRepository:
                     results[0]["hive_id"], results[0]["name"], results[0]["apiary_id"]
                 )
         return None
+
+    def find_by_apiary_id(self, apiary_id: int) -> list[Hive] | None:
+        if isinstance(apiary_id, int):
+            query = "SELECT * FROM hives WHERE apiary_id = %s;"
+            params = [apiary_id]
+            results = self.db.execute(query, params)
+            if results:
+                return [
+                    Hive(row["hive_id"], row["name"], row["apiary_id"])
+                    for row in results
+                ]
+        return None

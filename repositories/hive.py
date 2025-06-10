@@ -61,3 +61,9 @@ class HiveRepository:
                 results[0]["hive_id"], results[0]["name"], results[0]["apiary_id"]
             )
         return None
+
+    def delete(self, hive_id: int) -> bool:
+        query = "DELETE FROM hives WHERE hive_id = %s RETURNING hive_id;"
+        params = [hive_id]
+        results = self.db.execute(query, params)
+        return bool(results)

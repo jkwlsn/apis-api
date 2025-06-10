@@ -140,3 +140,29 @@ class TestColonyRepository:
 
         mock_db.execute.assert_called_once_with("SELECT * FROM colonies;", [])
         assert result is None
+
+    def test_can_update_valid_colony(self, mock_db: MagicMock) -> None:
+        mock_db.execute.return_value = [
+            {
+                "colony_id": self.test_colony.colony_id,
+            }
+        ]
+        repo: ColonyRepository = ColonyRepository(mock_db)
+
+        result: list[Colony] = repo.update(1, 999)
+
+        mock_db.execute.assert_called_once_with(
+            "UPDATE colonies SET hive_id = %s WHERE colony_id = %s RETURNING colony_id;",
+            [999, self.test_colony.hive_id],
+        )
+        assert isinstance(result, Colony)
+        assert result.colony_id == self.test_colony.colony_id
+        assert result.hive_id == 999
+
+    def test_can_not_update_invalid_colony(self, mock_db: MagicMock) -> None:
+        """Respository CAN NOT UPDATE an invalid colony in the database"""
+        mock_db.execute.return_value = []
+        repo = ColonyRepository(mock_db)
+
+        result = repo.update(1, "BAD UPDATE")
+        assert result is None

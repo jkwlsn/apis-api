@@ -12,15 +12,14 @@ class UserRepository:
         self.db = db
 
     def create(self, username: str, password: str) -> User | None:
-        query: str = (
-            "INSERT INTO users (username, password) VALUES (%s, %s) RETURNING user_id;"
-        )
-        params: list[str] = [username, password]
-        results = self.db.execute(query, params)
-        if results:
-            return User(
-                user_id=results[0]["user_id"], username=username, password=password
-            )
+        if len(username) > 0 and len(password) > 0:
+            query: str = "INSERT INTO users (username, password) VALUES (%s, %s) RETURNING user_id;"
+            params: list[str] = [username, password]
+            results = self.db.execute(query, params)
+            if results:
+                return User(
+                    user_id=results[0]["user_id"], username=username, password=password
+                )
         return None
 
     def find(self, user_id: int) -> User | None:

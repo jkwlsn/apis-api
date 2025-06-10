@@ -28,7 +28,7 @@ def test_create_valid_user(
     """Repository can CREATE a single user in the database"""
     test_case: User = user_factory(user_id=1, username="test", password="password")
     mock_db.execute.return_value = [{"user_id": test_case.user_id}]
-    repo = UserRepository(mock_db)
+    repo: UserRepository = UserRepository(db=mock_db)
 
     result: User | None = repo.create(
         username=test_case.username, password=test_case.password
@@ -44,17 +44,17 @@ def test_create_valid_user(
     assert result.password == test_case.password
 
 
-# def test_create_invalid_user_missing_username(mock_db: MagicMock) -> None:
-#     """Respository can NOT create a user without a username"""
-#     repo = UserRepository(mock_db)
-#     result = repo.create(username="", password="secure_password")
-#     assert result is None
-#
-#
-# def test_create_invalid_user_missing_password(mock_db: MagicMock) -> None:
-#     repo = UserRepository(db=mock_db)
-#     result = repo.create(username="username", password="")
-#     assert result is None
+def test_create_invalid_user_missing_username(mock_db: MagicMock) -> None:
+    """Respository can NOT create a user without a username"""
+    repo = UserRepository(mock_db)
+    result: User | None = repo.create(username="", password="secure_password")
+    assert result is None
+
+
+def test_create_invalid_user_missing_password(mock_db: MagicMock) -> None:
+    repo = UserRepository(db=mock_db)
+    result: User | None = repo.create(username="username", password="")
+    assert result is None
 
 
 def test_can_find_user(

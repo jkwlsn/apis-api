@@ -13,4 +13,4 @@ services:
       - 5432:5432
     volumes:
       - apis_db_data:/var/lib/postgresql/data
-      #- ./seeds/seed_data.sql:/docker-entrypoint-initdb.d/seed_data.sql
+      - ./sql/schema.sql:/docker-entrypoint-initdb.d/schema.sql

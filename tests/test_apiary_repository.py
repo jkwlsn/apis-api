@@ -182,3 +182,44 @@ class TestApiaryRepository:
 
         mock_db.execute.assert_called_once_with("SELECT * FROM apiaries;", [])
         assert result is None
+
+    def test_can_update_valid_apiary(self, mock_db: MagicMock) -> None:
+        mock_db.execute.return_value = [
+            {
+                "apiary_id": self.test_apiary.apiary_id,
+                "name": "UPDATED",
+                "location": self.test_apiary.location,
+                "user_id": self.test_apiary.user_id,
+            }
+        ]
+        repo: ApiaryRepository = ApiaryRepository(mock_db)
+
+        result: list[Apiary] = repo.update(1, "UPDATED", "Kent", 1)
+
+        mock_db.execute.assert_called_once_with(
+            "UPDATE apiaries SET name = %s, location = %s, user_id = %s WHERE apiary_id = %s RETURNING apiary_id;",
+            [
+                "UPDATED",
+                self.test_apiary.location,
+                self.test_apiary.user_id,
+                self.test_apiary.apiary_id,
+            ],
+        )
+        assert isinstance(result, Apiary)
+        assert result.apiary_id == self.test_apiary.apiary_id
+        assert result.name == "UPDATED"
+        assert result.location == self.test_apiary.location
+        assert result.user_id == self.test_apiary.user_id
+
+    def test_can_not_update_invalid_apiary(self, mock_db: MagicMock) -> None:
+        """Respository CAN NOT UPDATE an invalid apiary in the database"""
+        mock_db.execute.return_value = []
+        repo = ApiaryRepository(mock_db)
+
+        result = repo.update(999, "BAD UPDATE", "Kent", 1)
+
+        mock_db.execute.assert_called_once_with(
+            "UPDATE apiaries SET name = %s, location = %s, user_id = %s WHERE apiary_id = %s RETURNING apiary_id;",
+            ["BAD UPDATE", "Kent", 1, 999],
+        )
+        assert result is None

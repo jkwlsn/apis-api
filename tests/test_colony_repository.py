@@ -105,3 +105,38 @@ class TestColonyRepository:
             "SELECT * FROM colonies WHERE hive_id = %s LIMIT 1;", [999]
         )
         assert result is None
+
+    def test_read_full_db_returns_all(self, mock_db: MagicMock) -> None:
+        mock_db.execute.return_value = [
+            {
+                "colony_id": self.test_colony.colony_id,
+                "hive_id": self.test_colony.hive_id,
+            },
+            {
+                "colony_id": self.test_colony_2.colony_id,
+                "hive_id": self.test_colony_2.hive_id,
+            },
+            {
+                "colony_id": self.test_colony_3.colony_id,
+                "hive_id": self.test_colony_3.hive_id,
+            },
+        ]
+        repo: ColonyRepository = ColonyRepository(db=mock_db)
+
+        results: list[Colony] | None = repo.read()
+
+        mock_db.execute.assert_called_once_with("SELECT * FROM colonies;", [])
+        assert isinstance(results, (list, Colony))
+        assert results[0].colony_id == 1
+        assert results[1].colony_id == 2
+        assert results[2].colony_id == 3
+
+    def test_read_empty_db_returns_none(self, mock_db: MagicMock) -> None:
+        """Respository returns None when there are no apiaries in the db"""
+        mock_db.execute.return_value = []
+        repo: ColonyRepository = ColonyRepository(mock_db)
+
+        result: list[Colony] | None = repo.read()
+
+        mock_db.execute.assert_called_once_with("SELECT * FROM colonies;", [])
+        assert result is None

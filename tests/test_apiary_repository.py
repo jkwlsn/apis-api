@@ -97,3 +97,47 @@ class TestApiaryRepository:
             "SELECT * FROM apiaries WHERE apiary_id = %s LIMIT 1;", [999]
         )
         assert result is None
+
+    def test_can_find_apiaries_by_valid_user_id(self, mock_db: MagicMock) -> None:
+        mock_db.execute.return_value = [
+            {
+                "apiary_id": self.test_apiary.apiary_id,
+                "name": self.test_apiary.name,
+                "location": self.test_apiary.location,
+                "user_id": self.test_apiary.user_id,
+            },
+            {
+                "apiary_id": self.test_apiary_2.apiary_id,
+                "name": self.test_apiary_2.name,
+                "location": self.test_apiary_2.location,
+                "user_id": self.test_apiary_2.user_id,
+            },
+        ]
+        repo: ApiaryRepository = ApiaryRepository(db=mock_db)
+
+        result: Apiary | None = repo.find_by_user_id(self.test_apiary.apiary_id)
+
+        mock_db.execute.assert_called_once_with(
+            "SELECT * FROM apiaries WHERE user_id = %s;",
+            [self.test_apiary.apiary_id],
+        )
+        assert isinstance(result, list)
+        assert result[0].apiary_id == self.test_apiary.apiary_id
+        assert result[0].name == self.test_apiary.name
+        assert result[0].location == self.test_apiary.location
+        assert result[0].user_id == self.test_apiary.user_id
+        assert result[1].apiary_id == self.test_apiary_2.apiary_id
+        assert result[1].name == self.test_apiary_2.name
+        assert result[1].location == self.test_apiary_2.location
+        assert result[1].user_id == self.test_apiary_2.user_id
+
+    def test_can_not_find_apiary_by_invalid_user_id(self, mock_db: MagicMock) -> None:
+        mock_db.execute.return_value = []
+        repo: ApiaryRepository = ApiaryRepository(db=mock_db)
+
+        result: Apiary | None = repo.find_by_user_id(999)
+
+        mock_db.execute.assert_called_once_with(
+            "SELECT * FROM apiaries WHERE user_id = %s;", [999]
+        )
+        assert result is None

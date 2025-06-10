@@ -157,3 +157,40 @@ class TestHiveRepository:
 
         mock_db.execute.assert_called_once_with("SELECT * FROM hives;", [])
         assert result is None
+
+    def test_can_update_valid_hive(self, mock_db: MagicMock) -> None:
+        mock_db.execute.return_value = [
+            {
+                "hive_id": self.test_hive.hive_id,
+                "name": "UPDATED",
+                "apiary_id": self.test_hive.apiary_id,
+            }
+        ]
+        repo: HiveRepository = HiveRepository(mock_db)
+
+        result: list[Hive] = repo.update(1, "UPDATED", 1)
+
+        mock_db.execute.assert_called_once_with(
+            "UPDATE hives SET name = %s, apiary_id = %s WHERE hive_id = %s RETURNING hive_id;",
+            [
+                "UPDATED",
+                self.test_hive.apiary_id,
+                self.test_hive.hive_id,
+            ],
+        )
+        assert isinstance(result, Hive)
+        assert result.hive_id == self.test_hive.hive_id
+        assert result.name == "UPDATED"
+        assert result.apiary_id == self.test_hive.apiary_id
+
+    def test_can_not_update_invalid_hive(self, mock_db: MagicMock) -> None:
+        """Respository CAN NOT UPDATE an invalid hive in the database"""
+        mock_db.execute.return_value = []
+        repo = HiveRepository(mock_db)
+
+        result = repo.update(1, "BAD UPDATE", 1)
+        mock_db.execute.assert_called_once_with(
+            "UPDATE hives SET name = %s, apiary_id = %s WHERE hive_id = %s RETURNING hive_id;",
+            ["BAD UPDATE", 1, 1],
+        )
+        assert result is None

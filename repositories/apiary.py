@@ -76,3 +76,9 @@ class ApiaryRepository:
                 results[0]["user_id"],
             )
         return None
+
+    def delete(self, apiary_id: int) -> bool:
+        query: str = "DELETE FROM apiaries WHERE apiary_id = %s RETURNING apiary_id;"
+        params: list[int] = [apiary_id]
+        results = self.db.execute(query, params)
+        return bool(results)

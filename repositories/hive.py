@@ -41,3 +41,13 @@ class HiveRepository:
                     for row in results
                 ]
         return None
+
+    def read(self) -> list[Hive] | None:
+        query = "SELECT * FROM hives;"
+        params = []
+        results = self.db.execute(query, params)
+        if results:
+            return [
+                Hive(row["hive_id"], row["name"], row["apiary_id"]) for row in results
+            ]
+        return None

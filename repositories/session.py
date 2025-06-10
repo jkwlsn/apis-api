@@ -1,5 +1,7 @@
 """Session repository"""
 
+from datetime import datetime
+
 from db.database_connection import DatabaseConnection
 from models.session import Session
 
@@ -11,35 +13,50 @@ class SessionRepository:
         """Init with a database connection"""
         self.db = database_connection
 
-    def create(self, session: Session) -> list[dict]:
+    def create(self, session_start: datetime, user_id: int) -> Session | None:
         query: str = "INSERT INTO sessions (session_start, user_id) VALUES (%s, %s) RETURNING session_id;"
-        params: list[str] = [session.session_start, session.user_id]
-        return self.db.execute(query, params)
+        params: list[datetime | int] = [session_start, user_id]
+        result: list[int] | None = self.db.execute(query, params)
+        if result:
+            return Session(result[0]["session_id"], session_start, user_id)
+        return None
 
-    def find_by_session_id(self, session_id: int) -> list[dict]:
+    def find_by_session_id(self, session_id: int) -> list[Session] | None:
         query = "SELECT * FROM sessions WHERE session_id = %s;"
         params = [session_id]
-        return self.db.execute(query, params)
+        results = self.db.execute(query, params)
+        if results:
+            return [
+                Session(row["session_id"], row["session_start"], row["user_id"])
+                for row in results
+            ]
+        return None
 
-    def find_by_user_id(self, user_id: int) -> list[dict]:
+    def find_by_user_id(self, user_id: int) -> list[Session] | None:
         query = "SELECT * FROM sessions WHERE user_id = %s;"
         params = [user_id]
-        return self.db.execute(query, params)
+        results = self.db.execute(query, params)
+        if results:
+            return [
+                Session(row["session_id"], row["session_start"], row["user_id"])
+                for row in results
+            ]
+        return None
 
-    def read(self) -> list[dict]:
+    def read(self) -> list[Session] | None:
         query = "SELECT * FROM sessions;"
-        return self.db.execute(query)
-
-    def update(self, session_id: int, session_start: str, user_id: str) -> int:
-        query = "UPDATE sessions SET session_start = %s, user_id = %s WHERE session_id = %s RETURNING session_id;"
-        params = [session_start, user_id, session_id]
-        return self.db.execute(query, params)
+        params = []
+        results = self.db.execute(query, params)
+        if results:
+            return [
+                Session(row["session_id"], row["session_start"], row["user_id"])
+                for row in results
+            ]
+        return None
 
     def delete(self, session_id: int) -> bool:
         """Deletes a session by session_id. Returns True if the session was deleted, False otherwise"""
-        query = (
-            "DELETE FROM sessions WHERE session_id = %s RETURNING session_id CASCADE;"
-        )
+        query = "DELETE FROM sessions WHERE session_id = %s RETURNING session_id;"
         params = [session_id]
         result = self.db.execute(query, params)
         return bool(result)

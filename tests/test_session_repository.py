@@ -123,12 +123,12 @@ def test_can_find_session_by_user_id(
 
 
 def test_can_not_find_session_by_user_id(mock_db: MagicMock) -> None:
-    """Respository CAN NOT FIND invalid sessions in the database"""
+    """Respository CAN NOT FIND sessions with invalid user IDs in the database"""
     mock_db.execute.return_value = []
     repo = SessionRepository(mock_db)
-    result = repo.find_by_session_id(999)
+    result = repo.find_by_user_id(999)
     mock_db.execute.assert_called_once_with(
-        "SELECT * FROM sessions WHERE session_id = %s;",
+        "SELECT * FROM sessions WHERE user_id = %s;",
         [999],
     )
     assert result is None

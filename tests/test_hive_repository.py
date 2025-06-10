@@ -79,3 +79,43 @@ class TestHiveRepository:
             "SELECT * FROM hives WHERE hive_id = %s LIMIT 1;", [999]
         )
         assert result is None
+
+    def test_can_find_hives_by_valid_apiary_id(self, mock_db: MagicMock) -> None:
+        mock_db.execute.return_value = [
+            {
+                "hive_id": self.test_hive.hive_id,
+                "name": self.test_hive.name,
+                "apiary_id": self.test_hive.apiary_id,
+            },
+            {
+                "hive_id": self.test_hive_2.hive_id,
+                "name": self.test_hive_2.name,
+                "apiary_id": self.test_hive_2.apiary_id,
+            },
+        ]
+        repo: HiveRepository = HiveRepository(db=mock_db)
+
+        result: Hive | None = repo.find_by_apiary_id(self.test_hive.hive_id)
+
+        mock_db.execute.assert_called_once_with(
+            "SELECT * FROM hives WHERE apiary_id = %s;",
+            [self.test_hive.hive_id],
+        )
+        assert isinstance(result, list)
+        assert result[0].hive_id == self.test_hive.hive_id
+        assert result[0].name == self.test_hive.name
+        assert result[0].apiary_id == self.test_hive.apiary_id
+        assert result[1].hive_id == self.test_hive_2.hive_id
+        assert result[1].name == self.test_hive_2.name
+        assert result[1].apiary_id == self.test_hive_2.apiary_id
+
+    def test_can_not_find_hive_by_invalid_apiary_id(self, mock_db: MagicMock) -> None:
+        mock_db.execute.return_value = []
+        repo: HiveRepository = HiveRepository(db=mock_db)
+
+        result: Hive | None = repo.find_by_apiary_id(999)
+
+        mock_db.execute.assert_called_once_with(
+            "SELECT * FROM hives WHERE apiary_id = %s;", [999]
+        )
+        assert result is None

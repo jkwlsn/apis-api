@@ -119,3 +119,41 @@ class TestHiveRepository:
             "SELECT * FROM hives WHERE apiary_id = %s;", [999]
         )
         assert result is None
+
+    def test_read_full_db_returns_all(self, mock_db: MagicMock) -> None:
+        mock_db.execute.return_value = [
+            {
+                "hive_id": self.test_hive.hive_id,
+                "name": self.test_hive.name,
+                "apiary_id": self.test_hive.apiary_id,
+            },
+            {
+                "hive_id": self.test_hive_2.hive_id,
+                "name": self.test_hive_2.name,
+                "apiary_id": self.test_hive_2.apiary_id,
+            },
+            {
+                "hive_id": self.test_hive_3.hive_id,
+                "name": self.test_hive_3.name,
+                "apiary_id": self.test_hive_3.apiary_id,
+            },
+        ]
+        repo: HiveRepository = HiveRepository(db=mock_db)
+
+        results: list[Hive] | None = repo.read()
+
+        mock_db.execute.assert_called_once_with("SELECT * FROM hives;", [])
+        assert isinstance(results, (list, Hive))
+        assert results[0].hive_id == 1
+        assert results[1].hive_id == 2
+        assert results[2].hive_id == 3
+
+    def test_read_empty_db_returns_none(self, mock_db: MagicMock) -> None:
+        """Respository returns None when there are no apiaries in the db"""
+        mock_db.execute.return_value = []
+        repo: HiveRepository = HiveRepository(mock_db)
+
+        result: list[Hive] | None = repo.read()
+
+        mock_db.execute.assert_called_once_with("SELECT * FROM hives;", [])
+        assert result is None

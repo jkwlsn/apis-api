@@ -47,3 +47,35 @@ class TestHiveRepository:
             [self.test_hive.name, 999],
         )
         assert result is None
+
+    def test_can_find_hive_by_valid_hive_id(self, mock_db: MagicMock) -> None:
+        mock_db.execute.return_value = [
+            {
+                "hive_id": self.test_hive.hive_id,
+                "name": self.test_hive.name,
+                "apiary_id": self.test_hive.apiary_id,
+            }
+        ]
+        repo: HiveRepository = HiveRepository(db=mock_db)
+
+        result: Hive | None = repo.find_by_hive_id(self.test_hive.hive_id)
+
+        mock_db.execute.assert_called_once_with(
+            "SELECT * FROM hives WHERE hive_id = %s LIMIT 1;",
+            [self.test_hive.hive_id],
+        )
+        assert isinstance(result, Hive)
+        assert result.hive_id == self.test_hive.hive_id
+        assert result.name == self.test_hive.name
+        assert result.apiary_id == self.test_hive.apiary_id
+
+    def test_can_not_find_hive_by_invalid_hive_id(self, mock_db: MagicMock) -> None:
+        mock_db.execute.return_value = []
+        repo: HiveRepository = HiveRepository(db=mock_db)
+
+        result: Hive | None = repo.find_by_hive_id(999)
+
+        mock_db.execute.assert_called_once_with(
+            "SELECT * FROM hives WHERE hive_id = %s LIMIT 1;", [999]
+        )
+        assert result is None

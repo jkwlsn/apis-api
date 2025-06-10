@@ -51,3 +51,13 @@ class HiveRepository:
                 Hive(row["hive_id"], row["name"], row["apiary_id"]) for row in results
             ]
         return None
+
+    def update(self, hive_id: int, name: str, apiary_id: int) -> Hive | None:
+        query = "UPDATE hives SET name = %s, apiary_id = %s WHERE hive_id = %s RETURNING hive_id;"
+        params = [name, apiary_id, hive_id]
+        results = self.db.execute(query, params)
+        if results:
+            return Hive(
+                results[0]["hive_id"], results[0]["name"], results[0]["apiary_id"]
+            )
+        return None

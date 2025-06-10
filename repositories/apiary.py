@@ -61,3 +61,18 @@ class ApiaryRepository:
                 for row in results
             ]
         return None
+
+    def update(
+        self, apiary_id: int, name: str, location: str, user_id: int
+    ) -> Apiary | None:
+        query: str = "UPDATE apiaries SET name = %s, location = %s, user_id = %s WHERE apiary_id = %s RETURNING apiary_id;"
+        params = [name, location, user_id, apiary_id]
+        results = self.db.execute(query, params)
+        if results:
+            return Apiary(
+                results[0]["apiary_id"],
+                results[0]["name"],
+                results[0]["location"],
+                results[0]["user_id"],
+            )
+        return None

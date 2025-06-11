@@ -27,3 +27,18 @@ class ActionRepository:
                 results[0]["inspection_id"],
             )
         return None
+
+    def find_by_inspection_id(self, inspection_id: int) -> list[Action] | None:
+        query: str = "SELECT * FROM actions WHERE inspection_id = %s;"
+        params: list[int] = [inspection_id]
+        results: list[Action] | None = self.db.execute(query, params)
+        if results:
+            return [
+                Action(
+                    row["action_id"],
+                    row["notes"],
+                    row["inspection_id"],
+                )
+                for row in results
+            ]
+        return None

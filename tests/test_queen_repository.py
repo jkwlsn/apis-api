@@ -95,3 +95,37 @@ class TestQueenRepository:
             "SELECT * FROM queens WHERE queen_id = %s LIMIT 1;", [999]
         )
         assert result is None
+
+    def test_can_find_queens_by_valid_colony_id(self, mock_db: MagicMock) -> None:
+        mock_db.execute.return_value = [
+            {
+                "queen_id": self.test_queen.queen_id,
+                "colour": self.test_queen.colour,
+                "clipped": self.test_queen.clipped,
+                "colony_id": self.test_queen.colony_id,
+            }
+        ]
+        repo: QueenRepository = QueenRepository(db=mock_db)
+
+        result: Queen | None = repo.find_by_colony_id(self.test_queen.colony_id)
+
+        mock_db.execute.assert_called_once_with(
+            "SELECT * FROM queens WHERE colony_id = %s LIMIT 1;",
+            [self.test_queen.colony_id],
+        )
+        assert isinstance(result, Queen)
+        assert result.queen_id == self.test_queen.queen_id
+        assert result.colour == self.test_queen.colour
+        assert result.clipped == self.test_queen.clipped
+        assert result.colony_id == self.test_queen.colony_id
+
+    def test_can_not_find_queen_by_invalid_colony_id(self, mock_db: MagicMock) -> None:
+        mock_db.execute.return_value = []
+        repo: QueenRepository = QueenRepository(db=mock_db)
+
+        result: Queen | None = repo.find_by_colony_id(999)
+
+        mock_db.execute.assert_called_once_with(
+            "SELECT * FROM queens WHERE colony_id = %s LIMIT 1;", [999]
+        )
+        assert result is None

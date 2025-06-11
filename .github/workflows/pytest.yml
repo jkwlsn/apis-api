@@ -37,4 +37,6 @@ jobs:
             sleep 2
             done
         - name: Run pytest
-          run: python3 -m pytest -vvv
+          run: |
+            coverage run -m pytest -vvv
+            coverage report -m

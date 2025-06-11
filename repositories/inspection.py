@@ -24,3 +24,15 @@ class InspectionRepository:
                 result[0]["inspection_id"], inspection_timestamp, colony_id
             )
         return None
+
+    def find_by_inspection_id(self, inspection_id: int) -> Inspection | None:
+        query = "SELECT * FROM inspections WHERE inspection_id = %s LIMIT 1;"
+        params = [inspection_id]
+        results = self.db.execute(query, params)
+        if results:
+            return Inspection(
+                results[0]["inspection_id"],
+                results[0]["inspection_timestamp"],
+                results[0]["colony_id"],
+            )
+        return None

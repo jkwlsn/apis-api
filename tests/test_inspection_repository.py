@@ -1,0 +1,77 @@
+"""Tests for InspectionRepository class"""
+
+from datetime import datetime
+from unittest.mock import MagicMock
+from zoneinfo import ZoneInfo
+
+import pytest
+
+from models.inspection import Inspection
+from repositories.inspection import InspectionRepository
+
+
+@pytest.fixture
+def mock_db() -> MagicMock:
+    return MagicMock()
+
+
+class TestInspectionRepository:
+    test_inspection: Inspection = Inspection(
+        inspection_id=1,
+        inspection_timestamp=datetime(
+            2020, 6, 23, 2, 10, 25, tzinfo=ZoneInfo("Etc/UTC")
+        ),
+        colony_id=1,
+    )
+    test_inspection_2: Inspection = Inspection(
+        inspection_id=2,
+        inspection_timestamp=datetime(
+            2020, 6, 23, 2, 10, 25, tzinfo=ZoneInfo("Etc/UTC")
+        ),
+        colony_id=2,
+    )
+    test_inspection_3: Inspection = Inspection(
+        inspection_id=3,
+        inspection_timestamp=datetime(
+            2020, 6, 23, 2, 10, 25, tzinfo=ZoneInfo("Etc/UTC")
+        ),
+        colony_id=3,
+    )
+
+    def test_create_inspection(self, mock_db: MagicMock) -> None:
+        mock_db.execute.return_value = [
+            {"inspection_id": self.test_inspection.inspection_id}
+        ]
+        repo: InspectionRepository = InspectionRepository(db=mock_db)
+
+        result: Inspection | None = repo.create(
+            inspection_timestamp=self.test_inspection.inspection_timestamp,
+            colony_id=self.test_inspection.colony_id,
+        )
+
+        mock_db.execute.assert_called_once_with(
+            "INSERT INTO inspections (inspection_timestamp, colony_id) VALUES (%s, %s) RETURNING inspection_id;",
+            [
+                self.test_inspection.inspection_timestamp,
+                self.test_inspection.colony_id,
+            ],
+        )
+        assert isinstance(result, Inspection)
+        assert result.inspection_id == self.test_inspection.inspection_id
+        assert result.inspection_timestamp == self.test_inspection.inspection_timestamp
+        assert result.colony_id == self.test_inspection.colony_id
+
+    def test_create_invalid_inspection(self, mock_db: MagicMock) -> None:
+        mock_db.execute.return_value = []
+        repo: InspectionRepository = InspectionRepository(db=mock_db)
+
+        result: Inspection | None = repo.create(
+            inspection_timestamp=self.test_inspection.inspection_timestamp,
+            colony_id=999,
+        )
+
+        mock_db.execute.assert_called_once_with(
+            "INSERT INTO inspections (inspection_timestamp, colony_id) VALUES (%s, %s) RETURNING inspection_id;",
+            [self.test_inspection.inspection_timestamp, 999],
+        )
+        assert result is None

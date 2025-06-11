@@ -200,3 +200,24 @@ class TestQueenRepository:
             queen_id=999, colour="Yellow", clipped=True, colony_id=1
         )
         assert result is None
+
+    def test_can_delete_valid_queen(self, mock_db: MagicMock) -> None:
+        """Respository CAN DELETE a single valid queen in the database"""
+        mock_db.execute.return_value = [1]
+        repo: QueenRepository = QueenRepository(mock_db)
+        result: list[int] = repo.delete(1)
+        mock_db.execute.assert_called_once_with(
+            "DELETE FROM queens WHERE queen_id = %s RETURNING queen_id;",
+            [1],
+        )
+        assert result is True
+
+    def test_can_not_delete_invalid_queen(self, mock_db: MagicMock) -> None:
+        """Respository CAN NOT DELETE an invalid queen in the database"""
+        mock_db.execute.return_value = []
+        repo: QueenRepository = QueenRepository(mock_db)
+        result: list = repo.delete(999)
+        mock_db.execute.assert_called_once_with(
+            "DELETE FROM queens WHERE queen_id = %s RETURNING queen_id;", [999]
+        )
+        assert result is False

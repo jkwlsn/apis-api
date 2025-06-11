@@ -57,3 +57,13 @@ class QueenRepository:
                 for row in results
             ]
         return None
+
+    def update(
+        self, *, queen_id: int, colour: str, clipped: bool, colony_id: int
+    ) -> Queen | None:
+        query = "UPDATE queens SET colony_id = %s, colour = %s, clipped = %s WHERE queen_id = %s RETURNING queen_id;"
+        params: list[str | int | bool] = [colony_id, colour, clipped, queen_id]
+        results: list[dict] | None = self.db.execute(query, params)
+        if results:
+            return Queen(results[0]["queen_id"], colour, clipped, colony_id)
+        return None

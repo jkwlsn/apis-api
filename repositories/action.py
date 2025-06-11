@@ -42,3 +42,18 @@ class ActionRepository:
                 for row in results
             ]
         return None
+
+    def read(self) -> list[Action] | None:
+        query: str = "SELECT * FROM actions;"
+        params: list = []
+        results: list[Action] | None = self.db.execute(query, params)
+        if results:
+            return [
+                Action(
+                    row["action_id"],
+                    row["notes"],
+                    row["inspection_id"],
+                )
+                for row in results
+            ]
+        return None

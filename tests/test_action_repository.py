@@ -97,3 +97,37 @@ class TestActionRepository:
             "SELECT * FROM actions WHERE action_id = %s LIMIT 1;", [999]
         )
         assert result is None
+
+    def test_can_find_actions_by_valid_inspection_id(self, mock_db: MagicMock) -> None:
+        mock_db.execute.return_value = [
+            {
+                "action_id": self.test_action.action_id,
+                "notes": self.test_action.notes,
+                "inspection_id": self.test_action.inspection_id,
+            }
+        ]
+        repo: ActionRepository = ActionRepository(db=mock_db)
+
+        results: list[Action] | None = repo.find_by_inspection_id(
+            self.test_action.inspection_id
+        )
+
+        mock_db.execute.assert_called_once_with(
+            "SELECT * FROM actions WHERE inspection_id = %s;",
+            [self.test_action.inspection_id],
+        )
+        assert isinstance(results, list)
+        assert results[0].action_id == self.test_action.action_id
+
+    def test_can_not_find_action_by_invalid_inspection_id(
+        self, mock_db: MagicMock
+    ) -> None:
+        mock_db.execute.return_value = []
+        repo: ActionRepository = ActionRepository(db=mock_db)
+
+        result: Action | None = repo.find_by_inspection_id(999)
+
+        mock_db.execute.assert_called_once_with(
+            "SELECT * FROM actions WHERE inspection_id = %s;", [999]
+        )
+        assert result is None

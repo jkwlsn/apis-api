@@ -131,3 +131,41 @@ class TestActionRepository:
             "SELECT * FROM actions WHERE inspection_id = %s;", [999]
         )
         assert result is None
+
+    def test_read_full_db_returns_all(self, mock_db: MagicMock) -> None:
+        mock_db.execute.return_value = [
+            {
+                "action_id": self.test_action.action_id,
+                "notes": self.test_action.notes,
+                "inspection_id": self.test_action.inspection_id,
+            },
+            {
+                "action_id": self.test_action_2.action_id,
+                "notes": self.test_action_2.notes,
+                "inspection_id": self.test_action_2.inspection_id,
+            },
+            {
+                "action_id": self.test_action_3.action_id,
+                "notes": self.test_action_3.notes,
+                "inspection_id": self.test_action_3.inspection_id,
+            },
+        ]
+        repo: ActionRepository = ActionRepository(db=mock_db)
+
+        results: list[Action] | None = repo.read()
+
+        mock_db.execute.assert_called_once_with("SELECT * FROM actions;", [])
+        assert isinstance(results, (list, Action))
+        assert results[0].action_id == 1
+        assert results[1].action_id == 2
+        assert results[2].action_id == 3
+
+    def test_read_empty_db_returns_none(self, mock_db: MagicMock) -> None:
+        """Respository returns None when there are no apiaries in the db"""
+        mock_db.execute.return_value = []
+        repo: ActionRepository = ActionRepository(mock_db)
+
+        result: list[Action] | None = repo.read()
+
+        mock_db.execute.assert_called_once_with("SELECT * FROM actions;", [])
+        assert result is None

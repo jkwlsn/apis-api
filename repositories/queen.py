@@ -41,3 +41,19 @@ class QueenRepository:
                 results[0]["colony_id"],
             )
         return None
+
+    def read(self) -> list[Queen] | None:
+        query = "SELECT * FROM queens;"
+        params: list = []
+        results: list[dict] | None = self.db.execute(query, params)
+        if results:
+            return [
+                Queen(
+                    row["queen_id"],
+                    row["colour"],
+                    row["clipped"],
+                    row["colony_id"],
+                )
+                for row in results
+            ]
+        return None

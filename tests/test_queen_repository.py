@@ -170,3 +170,33 @@ class TestQueenRepository:
 
         mock_db.execute.assert_called_once_with("SELECT * FROM queens;", [])
         assert result is None
+
+    def test_can_update_valid_queen(self, mock_db: MagicMock) -> None:
+        mock_db.execute.return_value = [
+            {
+                "queen_id": self.test_queen.queen_id,
+            }
+        ]
+        repo: QueenRepository = QueenRepository(mock_db)
+
+        result: list[Queen] = repo.update(
+            queen_id=1, colour="Yellow", clipped=True, colony_id=999
+        )
+
+        mock_db.execute.assert_called_once_with(
+            "UPDATE queens SET colony_id = %s, colour = %s, clipped = %s WHERE queen_id = %s RETURNING queen_id;",
+            [999, "Yellow", True, 1],
+        )
+        assert isinstance(result, Queen)
+        assert result.queen_id == self.test_queen.queen_id
+        assert result.colony_id == 999
+
+    def test_can_not_update_invalid_queen(self, mock_db: MagicMock) -> None:
+        """Respository CAN NOT UPDATE an invalid queen in the database"""
+        mock_db.execute.return_value = []
+        repo = QueenRepository(mock_db)
+
+        result: list[Queen] = repo.update(
+            queen_id=999, colour="Yellow", clipped=True, colony_id=1
+        )
+        assert result is None

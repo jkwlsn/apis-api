@@ -62,3 +62,15 @@ class InspectionRepository:
                 for row in results
             ]
         return None
+
+    def update(
+        self, inspection_id: int, inspection_timestamp: datetime, colony_id: int
+    ) -> Inspection | None:
+        query = "UPDATE inspections SET inspection_timestamp = %s, colony_id = %s RETURNING inspection_id;"
+        params = [inspection_timestamp, colony_id, inspection_id]
+        results = self.db.execute(query, params)
+        if results:
+            return Inspection(
+                results[0]["inspection_id"], inspection_timestamp, colony_id
+            )
+        return None

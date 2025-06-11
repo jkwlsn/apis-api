@@ -36,3 +36,16 @@ class InspectionRepository:
                 results[0]["colony_id"],
             )
         return None
+
+    def find_by_colony_id(self, colony_id: int) -> list[Inspection] | None:
+        query = "SELECT * FROM inspections WHERE colony_id = %s;"
+        params = [colony_id]
+        results = self.db.execute(query, params)
+        if results:
+            return [
+                Inspection(
+                    row["inspection_id"], row["inspection_timestamp"], row["colony_id"]
+                )
+                for row in results
+            ]
+        return None

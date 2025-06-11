@@ -204,3 +204,25 @@ class TestActionRepository:
             [self.test_action.notes, 1, 999],
         )
         assert result is None
+
+    def test_can_delete_valid_action(self, mock_db: MagicMock) -> None:
+        """Respository CAN DELETE a single valid action in the database"""
+        mock_db.execute.return_value = [1]
+        repo: ActionRepository = ActionRepository(mock_db)
+        result: list[int] = repo.delete(1)
+        mock_db.execute.assert_called_once_with(
+            "DELETE FROM actions WHERE action_id = %s RETURNING action_id;",
+            [1],
+        )
+        assert result is True
+
+    def test_can_not_delete_invalid_action(self, mock_db: MagicMock) -> None:
+        """Respository CAN NOT DELETE an invalid action in the database"""
+        mock_db.execute.return_value = []
+        repo: ActionRepository = ActionRepository(mock_db)
+        result: list = repo.delete(999)
+        mock_db.execute.assert_called_once_with(
+            "DELETE FROM actions WHERE action_id = %s RETURNING action_id;",
+            [999],
+        )
+        assert result is False

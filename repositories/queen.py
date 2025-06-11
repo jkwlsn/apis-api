@@ -67,3 +67,9 @@ class QueenRepository:
         if results:
             return Queen(results[0]["queen_id"], colour, clipped, colony_id)
         return None
+
+    def delete(self, queen_id: int) -> bool:
+        query = "DELETE FROM queens WHERE queen_id = %s RETURNING queen_id;"
+        params: list[int] = [queen_id]
+        results: list[dict] | None = self.db.execute(query, params)
+        return bool(results)

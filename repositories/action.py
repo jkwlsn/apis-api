@@ -57,3 +57,13 @@ class ActionRepository:
                 for row in results
             ]
         return None
+
+    def update(self, action_id: int, notes: str, inspection_id: int) -> Action | None:
+        query: str = (
+            "UPDATE actions SET notes = %s, inspection_id = %s RETURNING action_id;"
+        )
+        params: list[int | str] = [notes, inspection_id, action_id]
+        results: list[Action] | None = self.db.execute(query, params)
+        if results:
+            return Action(results[0]["action_id"], notes, inspection_id)
+        return None

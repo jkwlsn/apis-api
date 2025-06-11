@@ -28,3 +28,16 @@ class QueenRepository:
                 results[0]["colony_id"],
             )
         return None
+
+    def find_by_colony_id(self, queen_id: int) -> Queen | None:
+        query = "SELECT * FROM queens WHERE colony_id = %s LIMIT 1;"
+        params: list[int] = [queen_id]
+        results: list[dict] | None = self.db.execute(query, params)
+        if results:
+            return Queen(
+                results[0]["queen_id"],
+                results[0]["colour"],
+                results[0]["clipped"],
+                results[0]["colony_id"],
+            )
+        return None

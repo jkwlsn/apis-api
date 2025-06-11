@@ -67,3 +67,9 @@ class ActionRepository:
         if results:
             return Action(results[0]["action_id"], notes, inspection_id)
         return None
+
+    def delete(self, action_id: int) -> Action | None:
+        query: str = "DELETE FROM actions WHERE action_id = %s RETURNING action_id;"
+        params: list[int] = [action_id]
+        results: list[Action] | None = self.db.execute(query, params)
+        return bool(results)

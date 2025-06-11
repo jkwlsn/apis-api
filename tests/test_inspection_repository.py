@@ -222,3 +222,25 @@ class TestInspectionRepository:
             [self.test_inspection.inspection_timestamp, 1, 999],
         )
         assert result is None
+
+    def test_can_delete_valid_inspection(self, mock_db: MagicMock) -> None:
+        """Respository CAN DELETE a single valid inspection in the database"""
+        mock_db.execute.return_value = [1]
+        repo: InspectionRepository = InspectionRepository(mock_db)
+        result: list[int] = repo.delete(1)
+        mock_db.execute.assert_called_once_with(
+            "DELETE FROM inspections WHERE inspection_id = %s RETURNING inspection_id;",
+            [1],
+        )
+        assert result is True
+
+    def test_can_not_delete_invalid_inspection(self, mock_db: MagicMock) -> None:
+        """Respository CAN NOT DELETE an invalid inspection in the database"""
+        mock_db.execute.return_value = []
+        repo: InspectionRepository = InspectionRepository(mock_db)
+        result: list = repo.delete(999)
+        mock_db.execute.assert_called_once_with(
+            "DELETE FROM inspections WHERE inspection_id = %s RETURNING inspection_id;",
+            [999],
+        )
+        assert result is False

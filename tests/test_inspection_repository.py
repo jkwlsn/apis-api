@@ -147,3 +147,41 @@ class TestInspectionRepository:
             "SELECT * FROM inspections WHERE colony_id = %s;", [999]
         )
         assert result is None
+
+    def test_read_full_db_returns_all(self, mock_db: MagicMock) -> None:
+        mock_db.execute.return_value = [
+            {
+                "inspection_id": self.test_inspection.inspection_id,
+                "inspection_timestamp": self.test_inspection.inspection_timestamp,
+                "colony_id": self.test_inspection.colony_id,
+            },
+            {
+                "inspection_id": self.test_inspection_2.inspection_id,
+                "inspection_timestamp": self.test_inspection_2.inspection_timestamp,
+                "colony_id": self.test_inspection_2.colony_id,
+            },
+            {
+                "inspection_id": self.test_inspection_3.inspection_id,
+                "inspection_timestamp": self.test_inspection_3.inspection_timestamp,
+                "colony_id": self.test_inspection_3.colony_id,
+            },
+        ]
+        repo: InspectionRepository = InspectionRepository(db=mock_db)
+
+        results: list[Inspection] | None = repo.read()
+
+        mock_db.execute.assert_called_once_with("SELECT * FROM inspections;", [])
+        assert isinstance(results, (list, Inspection))
+        assert results[0].inspection_id == 1
+        assert results[1].inspection_id == 2
+        assert results[2].inspection_id == 3
+
+    def test_read_empty_db_returns_none(self, mock_db: MagicMock) -> None:
+        """Respository returns None when there are no apiaries in the db"""
+        mock_db.execute.return_value = []
+        repo: InspectionRepository = InspectionRepository(mock_db)
+
+        result: list[Inspection] | None = repo.read()
+
+        mock_db.execute.assert_called_once_with("SELECT * FROM inspections;", [])
+        assert result is None

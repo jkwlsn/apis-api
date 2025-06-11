@@ -30,5 +30,11 @@ jobs:
           run: pip install -r dev-requirements.txt
         - name: Run docker compose
           run: docker compose up -d
+        - name: Wait for DB
+          run: |
+            until docker exec $(docker ps -qf "name=db") pg_isready -U ${{ vars.POSTGRES_USER }}; do
+            echo "Waiting for PostgreSQL..."
+            sleep 2
+            done
         - name: Run pytest
           run: python3 -m pytest -vvv

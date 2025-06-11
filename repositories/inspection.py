@@ -74,3 +74,12 @@ class InspectionRepository:
                 results[0]["inspection_id"], inspection_timestamp, colony_id
             )
         return None
+
+    def delete(self, inspection_id: int) -> bool:
+        """Deletes a inspection by inspection_id. Returns True if the inspection was deleted, False otherwise"""
+        query = (
+            "DELETE FROM inspections WHERE inspection_id = %s RETURNING inspection_id;"
+        )
+        params = [inspection_id]
+        result = self.db.execute(query, params)
+        return bool(result)

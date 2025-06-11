@@ -29,6 +29,6 @@ jobs:
         - name: Install dev dependencies
           run: pip install -r dev-requirements.txt
         - name: Run docker compose
-          run: docker compose up
+          run: docker compose up -d
         - name: Run pytest
           run: python3 -m pytest -vvv

@@ -129,3 +129,44 @@ class TestQueenRepository:
             "SELECT * FROM queens WHERE colony_id = %s LIMIT 1;", [999]
         )
         assert result is None
+
+    def test_read_full_db_returns_all(self, mock_db: MagicMock) -> None:
+        mock_db.execute.return_value = [
+            {
+                "queen_id": self.test_queen.queen_id,
+                "colour": self.test_queen.colour,
+                "clipped": self.test_queen.clipped,
+                "colony_id": self.test_queen.colony_id,
+            },
+            {
+                "queen_id": self.test_queen_2.queen_id,
+                "colour": self.test_queen_2.colour,
+                "clipped": self.test_queen_2.clipped,
+                "colony_id": self.test_queen_2.colony_id,
+            },
+            {
+                "queen_id": self.test_queen_3.queen_id,
+                "colour": self.test_queen_3.colour,
+                "clipped": self.test_queen_3.clipped,
+                "colony_id": self.test_queen_3.colony_id,
+            },
+        ]
+        repo: QueenRepository = QueenRepository(db=mock_db)
+
+        results: list[Queen] | None = repo.read()
+
+        mock_db.execute.assert_called_once_with("SELECT * FROM queens;", [])
+        assert isinstance(results, (list, Queen))
+        assert results[0].queen_id == 1
+        assert results[1].queen_id == 2
+        assert results[2].queen_id == 3
+
+    def test_read_empty_db_returns_none(self, mock_db: MagicMock) -> None:
+        """Respository returns None when there are no apiaries in the db"""
+        mock_db.execute.return_value = []
+        repo: QueenRepository = QueenRepository(mock_db)
+
+        result: list[Queen] | None = repo.read()
+
+        mock_db.execute.assert_called_once_with("SELECT * FROM queens;", [])
+        assert result is None

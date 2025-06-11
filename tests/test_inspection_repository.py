@@ -185,3 +185,40 @@ class TestInspectionRepository:
 
         mock_db.execute.assert_called_once_with("SELECT * FROM inspections;", [])
         assert result is None
+
+    def test_can_update_valid_inspection(self, mock_db: MagicMock) -> None:
+        mock_db.execute.return_value = [
+            {
+                "inspection_id": self.test_inspection.inspection_id,
+            }
+        ]
+        repo: InspectionRepository = InspectionRepository(mock_db)
+
+        result: Inspection | None = repo.update(
+            self.test_inspection.inspection_id,
+            self.test_inspection.inspection_timestamp,
+            999,
+        )
+
+        mock_db.execute.assert_called_once_with(
+            "UPDATE inspections SET inspection_timestamp = %s, colony_id = %s RETURNING inspection_id;",
+            [self.test_inspection.inspection_timestamp, 999, 1],
+        )
+        assert isinstance(result, Inspection)
+        assert result.inspection_id == self.test_inspection.inspection_id
+        assert result.inspection_timestamp == self.test_inspection.inspection_timestamp
+        assert result.colony_id == 999
+
+    def test_can_not_update_invalid_inspection(self, mock_db: MagicMock) -> None:
+        """Respository CAN NOT UPDATE an invalid inspection in the database"""
+        mock_db.execute.return_value = []
+        repo = InspectionRepository(mock_db)
+
+        result: list[Inspection] = repo.update(
+            999, self.test_inspection.inspection_timestamp, 1
+        )
+        mock_db.execute.assert_called_once_with(
+            "UPDATE inspections SET inspection_timestamp = %s, colony_id = %s RETURNING inspection_id;",
+            [self.test_inspection.inspection_timestamp, 1, 999],
+        )
+        assert result is None

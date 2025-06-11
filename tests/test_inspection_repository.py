@@ -75,3 +75,41 @@ class TestInspectionRepository:
             [self.test_inspection.inspection_timestamp, 999],
         )
         assert result is None
+
+    def test_can_find_inspection_by_valid_inspection_id(
+        self, mock_db: MagicMock
+    ) -> None:
+        mock_db.execute.return_value = [
+            {
+                "inspection_id": self.test_inspection.inspection_id,
+                "inspection_timestamp": self.test_inspection.inspection_timestamp,
+                "colony_id": self.test_inspection.colony_id,
+            }
+        ]
+        repo: InspectionRepository = InspectionRepository(db=mock_db)
+
+        result: Inspection | None = repo.find_by_inspection_id(
+            self.test_inspection.inspection_id
+        )
+
+        mock_db.execute.assert_called_once_with(
+            "SELECT * FROM inspections WHERE inspection_id = %s LIMIT 1;",
+            [self.test_inspection.inspection_id],
+        )
+        assert isinstance(result, Inspection)
+        assert result.inspection_id == self.test_inspection.inspection_id
+        assert result.inspection_timestamp == self.test_inspection.inspection_timestamp
+        assert result.colony_id == self.test_inspection.colony_id
+
+    def test_can_not_find_inspection_by_invalid_inspection_id(
+        self, mock_db: MagicMock
+    ) -> None:
+        mock_db.execute.return_value = []
+        repo: InspectionRepository = InspectionRepository(db=mock_db)
+
+        result: Inspection | None = repo.find_by_inspection_id(999)
+
+        mock_db.execute.assert_called_once_with(
+            "SELECT * FROM inspections WHERE inspection_id = %s LIMIT 1;", [999]
+        )
+        assert result is None

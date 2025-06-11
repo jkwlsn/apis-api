@@ -169,3 +169,38 @@ class TestActionRepository:
 
         mock_db.execute.assert_called_once_with("SELECT * FROM actions;", [])
         assert result is None
+
+    def test_can_update_valid_action(self, mock_db: MagicMock) -> None:
+        mock_db.execute.return_value = [
+            {
+                "action_id": self.test_action.action_id,
+            }
+        ]
+        repo: ActionRepository = ActionRepository(mock_db)
+
+        result: Action | None = repo.update(
+            self.test_action.action_id,
+            self.test_action.notes,
+            999,
+        )
+
+        mock_db.execute.assert_called_once_with(
+            "UPDATE actions SET notes = %s, inspection_id = %s RETURNING action_id;",
+            [self.test_action.notes, 999, 1],
+        )
+        assert isinstance(result, Action)
+        assert result.action_id == self.test_action.action_id
+        assert result.notes == self.test_action.notes
+        assert result.inspection_id == 999
+
+    def test_can_not_update_invalid_action(self, mock_db: MagicMock) -> None:
+        """Respository CAN NOT UPDATE an invalid action in the database"""
+        mock_db.execute.return_value = []
+        repo = ActionRepository(mock_db)
+
+        result: list[Action] = repo.update(999, self.test_action.notes, 1)
+        mock_db.execute.assert_called_once_with(
+            "UPDATE actions SET notes = %s, inspection_id = %s RETURNING action_id;",
+            [self.test_action.notes, 1, 999],
+        )
+        assert result is None

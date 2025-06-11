@@ -49,3 +49,16 @@ class InspectionRepository:
                 for row in results
             ]
         return None
+
+    def read(self) -> list[Inspection] | None:
+        query = "SELECT * FROM inspections;"
+        params = []
+        results = self.db.execute(query, params)
+        if results:
+            return [
+                Inspection(
+                    row["inspection_id"], row["inspection_timestamp"], row["colony_id"]
+                )
+                for row in results
+            ]
+        return None

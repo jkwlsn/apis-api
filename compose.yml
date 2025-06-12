@@ -8,7 +8,9 @@ services:
     container_name: apis_db
     image: postgres:latest
     restart: always
-    env_file: ".env.db"
+    env_file:
+        - path: .env
+          required: false
     ports:
       - 5432:5432
     volumes:

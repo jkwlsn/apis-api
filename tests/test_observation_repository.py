@@ -254,3 +254,68 @@ class TestObservationRepository:
             "SELECT * FROM observations WHERE inspection_id = %s LIMIT 1;", [999]
         )
         assert result is None
+
+    def test_read_full_db_returns_all(self, mock_db: MagicMock) -> None:
+        mock_db.execute.return_value = [
+            {
+                "observation_id": self.test_observation.observation_id,
+                "queenright": self.test_observation.queenright,
+                "queen_cells": self.test_observation.queen_cells,
+                "bias": self.test_observation.bias,
+                "brood_frames": self.test_observation.brood_frames,
+                "store_frames": self.test_observation.store_frames,
+                "chalk_brood": self.test_observation.chalk_brood,
+                "foul_brood": self.test_observation.foul_brood,
+                "varroa_count": self.test_observation.varroa_count,
+                "temper": self.test_observation.temper,
+                "notes": self.test_observation.notes,
+                "inspection_id": self.test_observation.inspection_id,
+            },
+            {
+                "observation_id": self.test_observation_2.observation_id,
+                "queenright": self.test_observation_2.queenright,
+                "queen_cells": self.test_observation_2.queen_cells,
+                "bias": self.test_observation_2.bias,
+                "brood_frames": self.test_observation_2.brood_frames,
+                "store_frames": self.test_observation_2.store_frames,
+                "chalk_brood": self.test_observation_2.chalk_brood,
+                "foul_brood": self.test_observation_2.foul_brood,
+                "varroa_count": self.test_observation_2.varroa_count,
+                "temper": self.test_observation_2.temper,
+                "notes": self.test_observation_2.notes,
+                "inspection_id": self.test_observation_2.inspection_id,
+            },
+            {
+                "observation_id": self.test_observation_3.observation_id,
+                "queenright": self.test_observation_3.queenright,
+                "queen_cells": self.test_observation_3.queen_cells,
+                "bias": self.test_observation_3.bias,
+                "brood_frames": self.test_observation_3.brood_frames,
+                "store_frames": self.test_observation_3.store_frames,
+                "chalk_brood": self.test_observation_3.chalk_brood,
+                "foul_brood": self.test_observation_3.foul_brood,
+                "varroa_count": self.test_observation_3.varroa_count,
+                "temper": self.test_observation_3.temper,
+                "notes": self.test_observation_3.notes,
+                "inspection_id": self.test_observation_3.inspection_id,
+            },
+        ]
+        repo: ObservationRepository = ObservationRepository(db=mock_db)
+
+        results: list[Observation] | None = repo.read()
+
+        mock_db.execute.assert_called_once_with("SELECT * FROM observations;", [])
+        assert isinstance(results, (list, Observation))
+        assert results[0].observation_id == 1
+        assert results[1].observation_id == 2
+        assert results[2].observation_id == 3
+
+    def test_read_empty_db_returns_none(self, mock_db: MagicMock) -> None:
+        """Respository returns None when there are no apiaries in the db"""
+        mock_db.execute.return_value = []
+        repo: ObservationRepository = ObservationRepository(mock_db)
+
+        result: list[Observation] | None = repo.read()
+
+        mock_db.execute.assert_called_once_with("SELECT * FROM observations;", [])
+        assert result is None

@@ -198,3 +198,59 @@ class TestObservationRepository:
             "SELECT * FROM observations WHERE observation_id = %s LIMIT 1;", [999]
         )
         assert result is None
+
+    def test_can_find_observation_by_valid_inspection_id(
+        self, mock_db: MagicMock
+    ) -> None:
+        mock_db.execute.return_value = [
+            {
+                "observation_id": self.test_observation.observation_id,
+                "queenright": self.test_observation.queenright,
+                "queen_cells": self.test_observation.queen_cells,
+                "bias": self.test_observation.bias,
+                "brood_frames": self.test_observation.brood_frames,
+                "store_frames": self.test_observation.store_frames,
+                "chalk_brood": self.test_observation.chalk_brood,
+                "foul_brood": self.test_observation.foul_brood,
+                "varroa_count": self.test_observation.varroa_count,
+                "temper": self.test_observation.temper,
+                "notes": self.test_observation.notes,
+                "inspection_id": self.test_observation.inspection_id,
+            }
+        ]
+        repo: ObservationRepository = ObservationRepository(db=mock_db)
+
+        result: Observation | None = repo.find_by_inspection_id(
+            self.test_observation.inspection_id
+        )
+
+        mock_db.execute.assert_called_once_with(
+            "SELECT * FROM observations WHERE inspection_id = %s LIMIT 1;",
+            [self.test_observation.observation_id],
+        )
+        assert isinstance(result, Observation)
+        assert result.observation_id == self.test_observation.observation_id
+        assert result.queenright is True
+        assert result.queen_cells == self.test_observation.queen_cells
+        assert result.bias is True
+        assert result.brood_frames == self.test_observation.brood_frames
+        assert result.store_frames == self.test_observation.store_frames
+        assert result.chalk_brood is False
+        assert result.foul_brood is False
+        assert result.varroa_count == self.test_observation.varroa_count
+        assert result.temper == self.test_observation.temper
+        assert result.notes == self.test_observation.notes
+        assert result.inspection_id == self.test_observation.inspection_id
+
+    def test_can_not_find_observation_by_invalid_inspection_id(
+        self, mock_db: MagicMock
+    ) -> None:
+        mock_db.execute.return_value = []
+        repo: ObservationRepository = ObservationRepository(db=mock_db)
+
+        result: Observation | None = repo.find_by_inspection_id(999)
+
+        mock_db.execute.assert_called_once_with(
+            "SELECT * FROM observations WHERE inspection_id = %s LIMIT 1;", [999]
+        )
+        assert result is None

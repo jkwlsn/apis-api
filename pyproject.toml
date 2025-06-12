@@ -27,6 +27,7 @@ lint.ignore = [
     "TD003",
     "FIX002", # too verbose descriptions of todos
     "COM812",
+    "PLR0913", # Disables warning on too many method params / args
 ]
 
 [tool.ruff.lint.per-file-ignores]

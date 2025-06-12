@@ -319,3 +319,96 @@ class TestObservationRepository:
 
         mock_db.execute.assert_called_once_with("SELECT * FROM observations;", [])
         assert result is None
+
+    def test_can_update_valid_observation(self, mock_db: MagicMock) -> None:
+        mock_db.execute.return_value = [
+            {
+                "observation_id": self.test_observation.observation_id,
+            }
+        ]
+        repo: ObservationRepository = ObservationRepository(mock_db)
+
+        result: Observation | None = repo.update(
+            observation_id=self.test_observation.observation_id,
+            queenright=self.test_observation.queenright,
+            queen_cells=self.test_observation.queen_cells,
+            bias=self.test_observation.bias,
+            brood_frames=self.test_observation.brood_frames,
+            store_frames=self.test_observation.store_frames,
+            chalk_brood=self.test_observation.chalk_brood,
+            foul_brood=self.test_observation.foul_brood,
+            varroa_count=self.test_observation.varroa_count,
+            temper=self.test_observation.temper,
+            notes="UPDATED NOTES",
+            inspection_id=self.test_observation.inspection_id,
+        )
+
+        mock_db.execute.assert_called_once_with(
+            "UPDATE observations SET queenright = %s, queen-cells = %s, bias = %s, brood_frames = %s, store_frames = %s, chalk_brood = %s, foul_brood = %s, varroa_count = %s, temper = %s, notes = %s, inspection_id = %s RETURNING observation_id;",
+            [
+                self.test_observation.queenright,
+                self.test_observation.queen_cells,
+                self.test_observation.bias,
+                self.test_observation.brood_frames,
+                self.test_observation.store_frames,
+                self.test_observation.chalk_brood,
+                self.test_observation.foul_brood,
+                self.test_observation.varroa_count,
+                self.test_observation.temper,
+                "UPDATED NOTES",
+                self.test_observation.inspection_id,
+                self.test_observation.observation_id,
+            ],
+        )
+        assert isinstance(result, Observation)
+        assert result.observation_id == self.test_observation.observation_id
+        assert result.queenright is True
+        assert result.queen_cells == self.test_observation.queen_cells
+        assert result.bias is True
+        assert result.brood_frames == self.test_observation.brood_frames
+        assert result.store_frames == self.test_observation.store_frames
+        assert result.chalk_brood is False
+        assert result.foul_brood is False
+        assert result.varroa_count == self.test_observation.varroa_count
+        assert result.temper == self.test_observation.temper
+        assert result.notes == "UPDATED NOTES"
+        assert result.inspection_id == self.test_observation.inspection_id
+
+    def test_can_not_update_invalid_observation(self, mock_db: MagicMock) -> None:
+        """Respository CAN NOT UPDATE an invalid observation in the database"""
+        mock_db.execute.return_value = []
+        repo: ObservationRepository = ObservationRepository(mock_db)
+
+        result: Observation | None = repo.update(
+            observation_id=self.test_observation.observation_id,
+            queenright=self.test_observation.queenright,
+            queen_cells=self.test_observation.queen_cells,
+            bias=self.test_observation.bias,
+            brood_frames=self.test_observation.brood_frames,
+            store_frames=self.test_observation.store_frames,
+            chalk_brood=self.test_observation.chalk_brood,
+            foul_brood=self.test_observation.foul_brood,
+            varroa_count=self.test_observation.varroa_count,
+            temper=self.test_observation.temper,
+            notes="BAD UPDATE",
+            inspection_id=self.test_observation.inspection_id,
+        )
+
+        mock_db.execute.assert_called_once_with(
+            "UPDATE observations SET queenright = %s, queen-cells = %s, bias = %s, brood_frames = %s, store_frames = %s, chalk_brood = %s, foul_brood = %s, varroa_count = %s, temper = %s, notes = %s, inspection_id = %s RETURNING observation_id;",
+            [
+                self.test_observation.queenright,
+                self.test_observation.queen_cells,
+                self.test_observation.bias,
+                self.test_observation.brood_frames,
+                self.test_observation.store_frames,
+                self.test_observation.chalk_brood,
+                self.test_observation.foul_brood,
+                self.test_observation.varroa_count,
+                self.test_observation.temper,
+                "BAD UPDATE",
+                self.test_observation.inspection_id,
+                self.test_observation.observation_id,
+            ],
+        )
+        assert result is None

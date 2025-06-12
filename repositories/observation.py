@@ -75,3 +75,24 @@ class ObservationRepository:
                 results[0]["inspection_id"],
             )
         return None
+
+    def find_by_inspection_id(self, inspection_id: int) -> Observation | None:
+        query: str = "SELECT * FROM observations WHERE inspection_id = %s LIMIT 1;"
+        params: list[int] = [inspection_id]
+        results: list[Observation] | None = self.db.execute(query, params)
+        if results:
+            return Observation(
+                results[0]["observation_id"],
+                results[0]["queenright"],
+                results[0]["queen_cells"],
+                results[0]["bias"],
+                results[0]["brood_frames"],
+                results[0]["store_frames"],
+                results[0]["chalk_brood"],
+                results[0]["foul_brood"],
+                results[0]["varroa_count"],
+                results[0]["temper"],
+                results[0]["notes"],
+                results[0]["inspection_id"],
+            )
+        return None

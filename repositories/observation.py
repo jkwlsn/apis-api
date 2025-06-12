@@ -169,3 +169,9 @@ class ObservationRepository:
                 inspection_id,
             )
         return None
+
+    def delete(self, observation_id: int) -> Observation | None:
+        query: str = "DELETE FROM observations WHERE observation_id = %s RETURNING observation_id;"
+        params: list[int] = [observation_id]
+        results: list[Observation] | None = self.db.execute(query, params)
+        return bool(results)

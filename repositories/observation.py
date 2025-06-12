@@ -96,3 +96,27 @@ class ObservationRepository:
                 results[0]["inspection_id"],
             )
         return None
+
+    def read(self) -> list[Observation] | None:
+        query: str = "SELECT * FROM observations;"
+        params: list = []
+        results: list[Observation] | None = self.db.execute(query, params)
+        if results:
+            return [
+                Observation(
+                    row["observation_id"],
+                    row["queenright"],
+                    row["queen_cells"],
+                    row["bias"],
+                    row["brood_frames"],
+                    row["store_frames"],
+                    row["chalk_brood"],
+                    row["foul_brood"],
+                    row["varroa_count"],
+                    row["temper"],
+                    row["notes"],
+                    row["inspection_id"],
+                )
+                for row in results
+            ]
+        return None

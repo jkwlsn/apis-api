@@ -412,3 +412,25 @@ class TestObservationRepository:
             ],
         )
         assert result is None
+
+    def test_can_delete_valid_observation(self, mock_db: MagicMock) -> None:
+        """Respository CAN DELETE a single valid observation in the database"""
+        mock_db.execute.return_value = [1]
+        repo: ObservationRepository = ObservationRepository(mock_db)
+        result: list[int] = repo.delete(1)
+        mock_db.execute.assert_called_once_with(
+            "DELETE FROM observations WHERE observation_id = %s RETURNING observation_id;",
+            [1],
+        )
+        assert result is True
+
+    def test_can_not_delete_invalid_observation(self, mock_db: MagicMock) -> None:
+        """Respository CAN NOT DELETE an invalid observation in the database"""
+        mock_db.execute.return_value = []
+        repo: ObservationRepository = ObservationRepository(mock_db)
+        result: list = repo.delete(999)
+        mock_db.execute.assert_called_once_with(
+            "DELETE FROM observations WHERE observation_id = %s RETURNING observation_id;",
+            [999],
+        )
+        assert result is False

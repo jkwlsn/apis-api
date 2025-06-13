@@ -22,9 +22,21 @@ class UserRepository:
                 )
         return None
 
-    def find(self, user_id: int) -> User | None:
+    def find_by_user_id(self, user_id: int) -> User | None:
         query = "SELECT * FROM users WHERE user_id = %s LIMIT 1;"
         params = [user_id]
+        results = self.db.execute(query, params)
+        if results:
+            return User(
+                user_id=results[0]["user_id"],
+                username=results[0]["username"],
+                password=results[0]["password"],
+            )
+        return None
+
+    def find_by_username(self, username: str) -> User | None:
+        query = "SELECT * FROM users WHERE username = %s LIMIT 1;"
+        params = [username]
         results = self.db.execute(query, params)
         if results:
             return User(

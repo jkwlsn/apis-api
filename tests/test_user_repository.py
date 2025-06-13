@@ -57,7 +57,7 @@ def test_create_invalid_user_missing_password(mock_db: MagicMock) -> None:
     assert result is None
 
 
-def test_can_find_user(
+def test_can_find_user_by_user_id(
     mock_db: MagicMock, user_factory: Callable[[int, str, str], User]
 ) -> None:
     """Respository CAN FIND a single valid user in the database"""
@@ -70,7 +70,8 @@ def test_can_find_user(
         }
     ]
     repo: UserRepository = UserRepository(db=mock_db)
-    result: User | None = repo.find(user_id=1)
+
+    result: User | None = repo.find_by_user_id(user_id=1)
 
     mock_db.execute.assert_called_once_with(
         "SELECT * FROM users WHERE user_id = %s LIMIT 1;", [1]
@@ -81,13 +82,53 @@ def test_can_find_user(
     assert result.password == test_case.password
 
 
-def test_can_not_find_user(mock_db: MagicMock) -> None:
+def test_can_not_find_user_by_user_id(mock_db: MagicMock) -> None:
     """Repository CAN NOT find invalid user"""
     mock_db.execute.return_value = []
     repo: UserRepository = UserRepository(db=mock_db)
-    result: User | None = repo.find(user_id=999)
+
+    result: User | None = repo.find_by_user_id(user_id=999)
+
     mock_db.execute.assert_called_once_with(
         "SELECT * FROM users WHERE user_id = %s LIMIT 1;", [999]
+    )
+    assert result is None
+
+
+def test_can_find_user_by_username(
+    mock_db: MagicMock, user_factory: Callable[[int, str, str], User]
+) -> None:
+    """Respository CAN FIND a single valid user in the database"""
+    test_case: User = user_factory(user_id=1, username="test", password="password")
+    mock_db.execute.return_value = [
+        {
+            "user_id": test_case.user_id,
+            "username": test_case.username,
+            "password": test_case.password,
+        }
+    ]
+    repo: UserRepository = UserRepository(db=mock_db)
+
+    result: User | None = repo.find_by_username(username="test")
+
+    mock_db.execute.assert_called_once_with(
+        "SELECT * FROM users WHERE username = %s LIMIT 1;", [test_case.username]
+    )
+    assert isinstance(result, User)
+    assert result.user_id == test_case.user_id
+    assert result.username == test_case.username
+    assert result.password == test_case.password
+
+
+def test_can_not_find_user_by_username(mock_db: MagicMock) -> None:
+    """Repository CAN NOT find invalid user"""
+    mock_db.execute.return_value = []
+    repo: UserRepository = UserRepository(db=mock_db)
+
+    result: User | None = repo.find_by_username(username="BADNAME")
+
+    mock_db.execute.assert_called_once_with(
+        "SELECT * FROM users WHERE username = %s LIMIT 1;", ["BADNAME"]
     )
     assert result is None
 

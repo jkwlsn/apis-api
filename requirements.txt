@@ -4,3 +4,4 @@ annotated-types==0.7.0
 pydantic==2.11.5
 pydantic-core==2.33.2
 typing-inspection==0.4.1
+bcrypt==4.3.0

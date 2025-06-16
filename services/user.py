@@ -42,14 +42,13 @@ class UserService:
         username_validator = UsernameValidator()
         password_hasher = PasswordHasher()
         normalised_username = username.strip().lower()
+        hashed_password = password_hasher.hash(password)
 
         if username_validator.validate(username) is False:
             raise ValueError("Username invalid")
 
         if password_validator.validate(password) is False:
             raise ValueError("Password invalid")
-
-        hashed_password = password_hasher.hash(password)
 
         user_exists = self.find_user_by_user_id(user_id)
 

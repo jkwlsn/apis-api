@@ -50,3 +50,26 @@ def test_can_not_create_session_invalid_user(
 
     with pytest.raises(ValueError, match="User does not exist"):
         session_service.create_session(user_id=1)
+
+
+def test_find_session_by_session_id(
+    user_repo: MagicMock, session_repo: MagicMock, test_timestamp: datetime
+) -> None:
+    session_repo.find_by_session_id.return_value = Session(1, test_timestamp, 1)
+    session_service = SessionService(session_repo, user_repo)
+
+    results = session_service.find_session_by_session_id(1)
+
+    assert results.session_id == 1
+    assert results.user_id == 1
+
+
+def test_find_session_by_session_id(
+    user_repo: MagicMock, session_repo: MagicMock
+) -> None:
+    session_repo.find_by_session_id.return_value = None
+    session_service = SessionService(session_repo, user_repo)
+
+    results = session_service.find_session_by_session_id(999)
+
+    assert results is None

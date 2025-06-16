@@ -55,9 +55,16 @@ class SessionRepository:
             ]
         return None
 
-    def delete(self, session_id: int) -> bool:
+    def delete_by_session_id(self, session_id: int) -> bool:
         """Deletes a session by session_id. Returns True if the session was deleted, False otherwise"""
         query = "DELETE FROM sessions WHERE session_id = %s RETURNING session_id;"
+        params = [session_id]
+        result = self.db.execute(query, params)
+        return bool(result)
+
+    def delete_by_user_id(self, session_id: int) -> bool:
+        """Deletes a session by user_id. Returns True if the user_id exists, false otherwise."""
+        query = "DELETE FROM sessions WHERE user_id = %s RETURNING user_id;"
         params = [session_id]
         result = self.db.execute(query, params)
         return bool(result)

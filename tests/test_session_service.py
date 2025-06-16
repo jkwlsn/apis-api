@@ -73,3 +73,31 @@ def test_can_not_find_session_by_session_id(
     results = session_service.find_session_by_session_id(999)
 
     assert results is None
+
+
+def test_find_session_by_user_id(
+    user_repo: MagicMock, session_repo: MagicMock, test_timestamp: datetime
+) -> None:
+    session_repo.find_by_user_id.return_value = [
+        Session(1, test_timestamp, 1),
+        Session(2, test_timestamp, 1),
+    ]
+    session_service = SessionService(session_repo, user_repo)
+
+    results = session_service.find_session_by_user_id(1)
+
+    assert results[0].session_id == 1
+    assert results[0].user_id == 1
+    assert results[1].session_id == 2
+    assert results[1].user_id == 1
+
+
+def test_can_not_find_session_by_invalid_user_id(
+    user_repo: MagicMock, session_repo: MagicMock
+) -> None:
+    session_repo.find_by_user_id.return_value = None
+    session_service = SessionService(session_repo, user_repo)
+
+    results = session_service.find_session_by_user_id(999)
+
+    assert results is None

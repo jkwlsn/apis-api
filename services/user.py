@@ -30,3 +30,6 @@ class UserService:
         hashed_password = password_hasher.hash(password)
 
         return self.repo.create(normalised_username, hashed_password)
+
+    def find_user_by_user_id(self, user_id: int) -> User | None:
+        return self.repo.find_by_user_id(user_id=user_id)

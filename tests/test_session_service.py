@@ -101,3 +101,17 @@ def test_can_not_find_session_by_invalid_user_id(
     results = session_service.find_session_by_user_id(999)
 
     assert results is None
+
+
+def test_delete_session(session_repo: MagicMock) -> None:
+    session_repo.delete.return_value = True
+    session_service = SessionService(session_repo, user_repo)
+
+    assert session_service.delete_session(1) is True
+
+
+def test_can_not_delete_invalid_session(session_repo: MagicMock) -> None:
+    session_repo.delete.return_value = False
+    session_service = SessionService(session_repo, user_repo)
+
+    assert session_service.delete_session(999) is False

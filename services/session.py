@@ -29,3 +29,6 @@ class SessionService:
 
     def delete_session_by_session_id(self, session_id: int) -> bool:
         return self.session_repo.delete_by_session_id(session_id)
+
+    def delete_session_by_user_id(self, user_id: int) -> bool:
+        return self.session_repo.delete_by_user_id(user_id)

@@ -33,7 +33,7 @@ def test_create_user_already_exists(mock_repo: MagicMock) -> None:
     mock_repo.find_by_username.return_value = User(1, username, password)
     user_service = UserService(mock_repo)
 
-    with pytest.raises(ValueError, match="user exists"):
+    with pytest.raises(ValueError, match="Username already taken"):
         user_service.create_user(username=username, password=password)
 
 
@@ -43,7 +43,7 @@ def test_create_username_with_invalid_chars(mock_repo: MagicMock) -> None:
     mock_repo.find_by_username.return_value = User(1, username, password)
     user_service = UserService(mock_repo)
 
-    with pytest.raises(ValueError, match="username invalid"):
+    with pytest.raises(ValueError, match="Username invalid"):
         user_service.create_user(username=username, password=password)
 
 
@@ -55,7 +55,7 @@ def test_create_username_too_long(mock_repo: MagicMock) -> None:
     mock_repo.find_by_username.return_value = None
     user_service = UserService(mock_repo)
 
-    with pytest.raises(ValueError, match="username invalid"):
+    with pytest.raises(ValueError, match="Username invalid"):
         user_service.create_user(username=username, password=password)
 
 
@@ -65,7 +65,7 @@ def test_create_username_too_short(mock_repo: MagicMock) -> None:
     mock_repo.find_by_username.return_value = None
     user_service = UserService(mock_repo)
 
-    with pytest.raises(ValueError, match="username invalid"):
+    with pytest.raises(ValueError, match="Username invalid"):
         user_service.create_user(username=username, password=password)
 
 
@@ -75,7 +75,7 @@ def test_create_username_empty(mock_repo: MagicMock) -> None:
     mock_repo.find_by_username.return_value = None
     user_service = UserService(mock_repo)
 
-    with pytest.raises(ValueError, match="username invalid"):
+    with pytest.raises(ValueError, match="Username invalid"):
         user_service.create_user(username=username, password=password)
 
 
@@ -171,7 +171,7 @@ def test_can_not_update_user_with_invalid_user_id(mock_repo: MagicMock) -> None:
     mock_repo.find_by_user_id.return_value = None
     user_service = UserService(mock_repo)
 
-    with pytest.raises(ValueError, match="user does not exist"):
+    with pytest.raises(ValueError, match="User does not exist"):
         user_service.update_user(
             user_id=1, username="UPDATED", password="hashedpassword"
         )
@@ -182,7 +182,7 @@ def test_can_not_update_user_username_taken(mock_repo: MagicMock) -> None:
     mock_repo.find_by_username.return_value = User(2, "UPDATED", "hashedpassword")
     user_service = UserService(mock_repo)
 
-    with pytest.raises(ValueError, match="Username taken"):
+    with pytest.raises(ValueError, match="Username already taken"):
         user_service.update_user(
             user_id=1, username="UPDATED", password="hashedpassword"
         )

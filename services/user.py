@@ -63,3 +63,6 @@ class UserService:
         return self.repo.update(
             user_id=user_id, username=normalised_username, password=hashed_password
         )
+
+    def delete_user(self, user_id: int) -> bool:
+        return bool(self.repo.delete(user_id=user_id))

@@ -107,3 +107,24 @@ def test_create_user_password_empty(mock_repo: MagicMock) -> None:
 
     with pytest.raises(PasswordError):
         user_service.create_user(username=username, password=password)
+
+
+def test_find_user_by_user_id(mock_repo: MagicMock) -> None:
+    mock_repo.find_by_user_id.return_value = User(1, "Jake", "hashedpassword")
+    user_service = UserService(mock_repo)
+
+    results = user_service.find_user_by_user_id(1)
+
+    assert isinstance(results, User)
+    assert results.user_id == 1
+    assert results.username == "Jake"
+    assert results.password == "hashedpassword"
+
+
+def test_can_not_find_user_by_invalid_user_id(mock_repo: MagicMock) -> None:
+    mock_repo.find_by_user_id.return_value = None
+    user_service = UserService(mock_repo)
+
+    results = user_service.find_user_by_user_id(999)
+
+    assert results is None

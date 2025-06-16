@@ -149,3 +149,40 @@ def test_can_not_find_user_by_invalid_username(mock_repo: MagicMock) -> None:
     results = user_service.find_user_by_username("BADUSERNAME")
 
     assert results is None
+
+
+def test_update_user(mock_repo: MagicMock) -> None:
+    mock_repo.find_by_user_id.return_value = User(1, "jake", "hashedpassword")
+    mock_repo.find_by_username.return_value = User(1, "jake", "hashedpassword")
+    mock_repo.update.return_value = User(1, "UPDATED", "hashedpassword")
+    user_service = UserService(mock_repo)
+    results = User(1, "Jake", "hashedpassword")
+
+    results = user_service.update_user(
+        user_id=1, username="UPDATED", password="hashedpassword"
+    )
+
+    assert results.user_id == 1
+    assert results.username == "UPDATED"
+    assert results.password == "hashedpassword"
+
+
+def test_can_not_update_user_with_invalid_user_id(mock_repo: MagicMock) -> None:
+    mock_repo.find_by_user_id.return_value = None
+    user_service = UserService(mock_repo)
+
+    with pytest.raises(ValueError):
+        user_service.update_user(
+            user_id=1, username="UPDATED", password="hashedpassword"
+        )
+
+
+def test_can_not_update_user_username_taken(mock_repo: MagicMock) -> None:
+    mock_repo.find_by_user_id.return_value = User(1, "jake", "hashedpassword")
+    mock_repo.find_by_username.return_value = User(2, "UPDATED", "hashedpassword")
+    user_service = UserService(mock_repo)
+
+    with pytest.raises(ValueError, match="Username taken"):
+        user_service.update_user(
+            user_id=1, username="UPDATED", password="hashedpassword"
+        )

@@ -179,13 +179,29 @@ def test_can_not_update_user_with_invalid_user_id(mock_repo: MagicMock) -> None:
 
 def test_can_not_update_user_username_taken(mock_repo: MagicMock) -> None:
     mock_repo.find_by_user_id.return_value = User(1, "jake", "hashedpassword")
-    mock_repo.find_by_username.return_value = User(2, "UPDATED", "hashedpassword")
+    mock_repo.find_by_username.return_value = User(2, "AlreadyTaken", "hashedpassword")
     user_service = UserService(mock_repo)
 
     with pytest.raises(ValueError, match="Username already taken"):
         user_service.update_user(
-            user_id=1, username="UPDATED", password="hashedpassword"
+            user_id=1, username="AlreadyTaken", password="hashedpassword"
         )
+
+
+def test_can_not_update_user_username_invalid(mock_repo: MagicMock) -> None:
+    user_service = UserService(mock_repo)
+
+    with pytest.raises(ValueError, match="Username invalid"):
+        user_service.update_user(
+            user_id=1, username="Invalid_Username!!!!!!", password="hashedpassword"
+        )
+
+
+def test_can_not_update_user_password_invalid(mock_repo: MagicMock) -> None:
+    user_service = UserService(mock_repo)
+
+    with pytest.raises(ValueError, match="Password invalid"):
+        user_service.update_user(user_id=1, username="jake", password="tooshort")
 
 
 def test_delete_user(mock_repo: MagicMock) -> None:

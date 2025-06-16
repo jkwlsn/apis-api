@@ -186,3 +186,17 @@ def test_can_not_update_user_username_taken(mock_repo: MagicMock) -> None:
         user_service.update_user(
             user_id=1, username="UPDATED", password="hashedpassword"
         )
+
+
+def test_delete_user(mock_repo: MagicMock) -> None:
+    mock_repo.delete.return_value = True
+    user_service = UserService(mock_repo)
+
+    assert user_service.delete_user(1) is True
+
+
+def test_can_not_delete_invalid_user(mock_repo: MagicMock) -> None:
+    mock_repo.delete.return_value = False
+    user_service = UserService(mock_repo)
+
+    assert user_service.delete_user(999) is False

@@ -182,7 +182,7 @@ def test_delete_valid_session_passes(mock_db: MagicMock) -> None:
     """Respository CAN DELETE a single valid session in the database"""
     mock_db.execute.return_value = [1]
     repo = SessionRepository(mock_db)
-    result = repo.delete(1)
+    result = repo.delete_by_session_id(1)
     mock_db.execute.assert_called_once_with(
         "DELETE FROM sessions WHERE session_id = %s RETURNING session_id;",
         [1],
@@ -194,8 +194,31 @@ def test_can_not_delete_invalid_session(mock_db: MagicMock) -> None:
     """Respository CAN NOT DELETE an invalid session in the database"""
     mock_db.execute.return_value = []
     repo = SessionRepository(mock_db)
-    result = repo.delete(999)
+    result = repo.delete_by_session_id(999)
     mock_db.execute.assert_called_once_with(
         "DELETE FROM sessions WHERE session_id = %s RETURNING session_id;", [999]
+    )
+    assert result is False
+
+
+def test_delete_all_sessions_by_user_id(mock_db: MagicMock) -> None:
+    """Respository CAN DELETE all sessions by user_id"""
+    mock_db.execute.return_value = [1]
+    repo = SessionRepository(mock_db)
+    result = repo.delete_by_user_id(1)
+    mock_db.execute.assert_called_once_with(
+        "DELETE FROM sessions WHERE user_id = %s RETURNING user_id;",
+        [1],
+    )
+    assert result is True
+
+
+def test_can_not_delete_sessions_by_invalid_user_id(mock_db: MagicMock) -> None:
+    """Respository CAN NOT DELETE sessions where no user_id exists in the database"""
+    mock_db.execute.return_value = []
+    repo = SessionRepository(mock_db)
+    result = repo.delete_by_user_id(999)
+    mock_db.execute.assert_called_once_with(
+        "DELETE FROM sessions WHERE user_id = %s RETURNING user_id;", [999]
     )
     assert result is False

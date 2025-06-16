@@ -50,3 +50,68 @@ def test_can_not_create_session_invalid_user(
 
     with pytest.raises(ValueError, match="User does not exist"):
         session_service.create_session(user_id=1)
+
+
+def test_find_session_by_session_id(
+    user_repo: MagicMock, session_repo: MagicMock, test_timestamp: datetime
+) -> None:
+    session_repo.find_by_session_id.return_value = Session(1, test_timestamp, 1)
+    session_service = SessionService(session_repo, user_repo)
+
+    results = session_service.find_session_by_session_id(1)
+
+    assert results.session_id == 1
+    assert results.user_id == 1
+
+
+def test_can_not_find_session_by_session_id(
+    user_repo: MagicMock, session_repo: MagicMock
+) -> None:
+    session_repo.find_by_session_id.return_value = None
+    session_service = SessionService(session_repo, user_repo)
+
+    results = session_service.find_session_by_session_id(999)
+
+    assert results is None
+
+
+def test_find_session_by_user_id(
+    user_repo: MagicMock, session_repo: MagicMock, test_timestamp: datetime
+) -> None:
+    session_repo.find_by_user_id.return_value = [
+        Session(1, test_timestamp, 1),
+        Session(2, test_timestamp, 1),
+    ]
+    session_service = SessionService(session_repo, user_repo)
+
+    results = session_service.find_session_by_user_id(1)
+
+    assert results[0].session_id == 1
+    assert results[0].user_id == 1
+    assert results[1].session_id == 2
+    assert results[1].user_id == 1
+
+
+def test_can_not_find_session_by_invalid_user_id(
+    user_repo: MagicMock, session_repo: MagicMock
+) -> None:
+    session_repo.find_by_user_id.return_value = None
+    session_service = SessionService(session_repo, user_repo)
+
+    results = session_service.find_session_by_user_id(999)
+
+    assert results is None
+
+
+def test_delete_session(session_repo: MagicMock) -> None:
+    session_repo.delete.return_value = True
+    session_service = SessionService(session_repo, user_repo)
+
+    assert session_service.delete_session(1) is True
+
+
+def test_can_not_delete_invalid_session(session_repo: MagicMock) -> None:
+    session_repo.delete.return_value = False
+    session_service = SessionService(session_repo, user_repo)
+
+    assert session_service.delete_session(999) is False

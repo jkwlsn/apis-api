@@ -103,15 +103,15 @@ def test_can_not_find_session_by_invalid_user_id(
     assert results is None
 
 
-def test_delete_session(session_repo: MagicMock) -> None:
-    session_repo.delete.return_value = True
+def test_delete_session_by_session_id(session_repo: MagicMock) -> None:
+    session_repo.delete_by_session_id.return_value = True
     session_service = SessionService(session_repo, user_repo)
 
-    assert session_service.delete_session(1) is True
+    assert session_service.delete_session_by_session_id(1) is True
 
 
-def test_can_not_delete_invalid_session(session_repo: MagicMock) -> None:
-    session_repo.delete.return_value = False
+def test_can_not_delete_session_by_invalid_session_id(session_repo: MagicMock) -> None:
+    session_repo.delete_by_session_id.return_value = False
     session_service = SessionService(session_repo, user_repo)
 
-    assert session_service.delete_session(999) is False
+    assert session_service.delete_session_by_session_id(999) is False

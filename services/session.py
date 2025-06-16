@@ -20,3 +20,6 @@ class SessionService:
             raise ValueError(self.user_id_invalid)
         session_start = datetime.now(tz=UTC)
         return self.session_repo.create(session_start=session_start, user_id=user_id)
+
+    def find_session_by_session_id(self, session_id: int) -> Session | None:
+        return self.session_repo.find_by_session_id(session_id)

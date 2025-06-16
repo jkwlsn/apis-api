@@ -64,7 +64,7 @@ def test_find_session_by_session_id(
     assert results.user_id == 1
 
 
-def test_find_session_by_session_id(
+def test_can_not_find_session_by_session_id(
     user_repo: MagicMock, session_repo: MagicMock
 ) -> None:
     session_repo.find_by_session_id.return_value = None

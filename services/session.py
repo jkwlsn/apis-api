@@ -23,3 +23,6 @@ class SessionService:
 
     def find_session_by_session_id(self, session_id: int) -> Session | None:
         return self.session_repo.find_by_session_id(session_id)
+
+    def find_session_by_user_id(self, user_id: int) -> list[Session] | None:
+        return self.session_repo.find_by_user_id(user_id)

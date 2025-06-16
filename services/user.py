@@ -33,3 +33,6 @@ class UserService:
 
     def find_user_by_user_id(self, user_id: int) -> User | None:
         return self.repo.find_by_user_id(user_id=user_id)
+
+    def find_user_by_username(self, username: str) -> User | None:
+        return self.repo.find_by_username(username=username)

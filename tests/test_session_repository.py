@@ -76,12 +76,11 @@ def test_can_find_session_by_session_id(
     repo = SessionRepository(mock_db)
     result = repo.find_by_session_id(1)
     mock_db.execute.assert_called_once_with(
-        "SELECT * FROM sessions WHERE session_id = %s;", [test_case.session_id]
+        "SELECT * FROM sessions WHERE session_id = %s LIMIT 1;", [test_case.session_id]
     )
-    assert isinstance(result, list)
-    assert result[0].session_id == test_case.session_id
-    assert result[0].session_start == test_case.session_start
-    assert result[0].user_id == test_case.user_id
+    assert result.session_id == test_case.session_id
+    assert result.session_start == test_case.session_start
+    assert result.user_id == test_case.user_id
 
 
 def test_can_not_find_session_by_session_id(mock_db: MagicMock) -> None:
@@ -90,7 +89,7 @@ def test_can_not_find_session_by_session_id(mock_db: MagicMock) -> None:
     repo = SessionRepository(mock_db)
     result = repo.find_by_session_id(999)
     mock_db.execute.assert_called_once_with(
-        "SELECT * FROM sessions WHERE session_id = %s;",
+        "SELECT * FROM sessions WHERE session_id = %s LIMIT 1;",
         [999],
     )
     assert result is None

@@ -26,3 +26,6 @@ class SessionService:
 
     def find_session_by_user_id(self, user_id: int) -> list[Session] | None:
         return self.session_repo.find_by_user_id(user_id)
+
+    def delete_session(self, session_id: int) -> bool:
+        return self.session_repo.delete(session_id)

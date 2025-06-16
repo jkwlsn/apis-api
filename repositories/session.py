@@ -21,7 +21,7 @@ class SessionRepository:
             return Session(result[0]["session_id"], session_start, user_id)
         return None
 
-    def find_by_session_id(self, session_id: int) -> list[Session] | None:
+    def find_by_session_id(self, session_id: int) -> Session | None:
         query = "SELECT * FROM sessions WHERE session_id = %s LIMIT 1;"
         params = [session_id]
         results = self.db.execute(query, params)

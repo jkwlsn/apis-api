@@ -21,15 +21,16 @@ class SessionRepository:
             return Session(result[0]["session_id"], session_start, user_id)
         return None
 
-    def find_by_session_id(self, session_id: int) -> list[Session] | None:
-        query = "SELECT * FROM sessions WHERE session_id = %s;"
+    def find_by_session_id(self, session_id: int) -> Session | None:
+        query = "SELECT * FROM sessions WHERE session_id = %s LIMIT 1;"
         params = [session_id]
         results = self.db.execute(query, params)
         if results:
-            return [
-                Session(row["session_id"], row["session_start"], row["user_id"])
-                for row in results
-            ]
+            return Session(
+                results[0]["session_id"],
+                results[0]["session_start"],
+                results[0]["user_id"],
+            )
         return None
 
     def find_by_user_id(self, user_id: int) -> list[Session] | None:

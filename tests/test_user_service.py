@@ -128,3 +128,24 @@ def test_can_not_find_user_by_invalid_user_id(mock_repo: MagicMock) -> None:
     results = user_service.find_user_by_user_id(999)
 
     assert results is None
+
+
+def test_find_user_by_username(mock_repo: MagicMock) -> None:
+    mock_repo.find_by_username.return_value = User(1, "jake", "hashedpassword")
+    user_service = UserService(mock_repo)
+
+    results = user_service.find_user_by_username("Jake")
+
+    assert isinstance(results, User)
+    assert results.user_id == 1
+    assert results.username == "jake"
+    assert results.password == "hashedpassword"
+
+
+def test_can_not_find_user_by_invalid_username(mock_repo: MagicMock) -> None:
+    mock_repo.find_by_username.return_value = None
+    user_service = UserService(mock_repo)
+
+    results = user_service.find_user_by_username("BADUSERNAME")
+
+    assert results is None

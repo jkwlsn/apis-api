@@ -44,3 +44,7 @@ class ActionService:
     def find_action_by_action_id(self, action_id: int) -> Action | None:
         self._validate_action_id(action_id)
         return self.action_repo.find_by_action_id(action_id)
+
+    def find_actions_by_inspection_id(self, inspection_id: int) -> list[Action] | None:
+        self._validate_inspection_id(inspection_id)
+        return self.action_repo.find_by_inspection_id(inspection_id)

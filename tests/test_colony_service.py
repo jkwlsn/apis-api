@@ -198,3 +198,35 @@ def test_can_not_update_colony_missing_hive_id(
 
     with pytest.raises(ValueError, match="Invalid hive_id"):
         colony_service.update_colony(colony_id, hive_id)
+
+
+def test_delete_colony(colony_repo: MagicMock, hive_repo: MagicMock) -> None:
+    colony_repo.delete.return_value = True
+    colony_service: ColonyService = ColonyService(colony_repo, hive_repo)
+
+    result: bool = colony_service.delete_colony(1)
+
+    assert result is True
+
+
+def test_can_not_delete_colony_missing_colony_id(
+    colony_repo: MagicMock, hive_repo: MagicMock
+) -> None:
+    colony_repo.find_by_colony_id.return_value = None
+    colony_repo.delete.return_value = False
+    colony_service: ColonyService = ColonyService(colony_repo, hive_repo)
+
+    results: bool = colony_service.delete_colony(999)
+
+    assert results is False
+
+
+def test_can_not_delete_colony_invalid_colony_id(
+    colony_repo: MagicMock, hive_repo: MagicMock
+) -> None:
+    colony_repo.delete.return_value = False
+    colony_repo.find_by_colony_id.return_value = None
+    colony_service: ColonyService = ColonyService(colony_repo, hive_repo)
+
+    with pytest.raises(ValueError, match="Invalid colony_id"):
+        colony_service.delete_colony(-1)

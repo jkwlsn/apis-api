@@ -40,3 +40,7 @@ class ActionService:
         self._validate_notes(notes=notes)
         self._validate_inspection_exists(inspection_id)
         return self.action_repo.create(notes=notes, inspection_id=inspection_id)
+
+    def find_action_by_action_id(self, action_id: int) -> Action | None:
+        self._validate_action_id(action_id)
+        return self.action_repo.find_by_action_id(action_id)

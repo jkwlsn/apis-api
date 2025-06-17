@@ -123,3 +123,34 @@ def test_can_not_find_apiary_by_apiary_id(
     result = apiary_service.find_apiary_by_apiary_id(999)
 
     assert result is None
+
+
+def test_find_apiaries_by_user_id(
+    apiary_repo: MagicMock, user_repo: MagicMock, test_data: Apiary, test_data_2: Apiary
+) -> None:
+    apiary_repo.find_by_user_id.return_value = [test_data, test_data_2]
+    apiary_service: ApiaryService = ApiaryService(apiary_repo, user_repo)
+
+    results: list[Apiary] | None = apiary_service.find_apiaries_by_user_id(1)
+
+    assert isinstance(results, list)
+    assert len(results) == 2
+    assert isinstance(results[0], Apiary)
+    assert results[0].name == test_data.name
+    assert results[0].location == test_data.location
+    assert results[0].user_id == test_data.user_id
+    assert isinstance(results[1], Apiary)
+    assert results[1].name == test_data_2.name
+    assert results[1].location == test_data_2.location
+    assert results[1].user_id == test_data_2.user_id
+
+
+def test_can_not_find_apiaries_by_user_id(
+    apiary_repo: MagicMock, user_repo: MagicMock
+) -> None:
+    apiary_repo.find_by_user_id.return_value = None
+    apiary_service: ApiaryService = ApiaryService(apiary_repo, user_repo)
+
+    results: list[Apiary] | None = apiary_service.find_apiaries_by_user_id(999)
+
+    assert results is None

@@ -222,3 +222,35 @@ def test_can_not_update_hive_missing_apiary_id(
 
     with pytest.raises(ValueError, match="Invalid apiary_id"):
         hive_service.update_hive(hive_id, name, apiary_id)
+
+
+def test_delete_hive(hive_repo: MagicMock, apiary_repo: MagicMock) -> None:
+    hive_repo.delete.return_value = True
+    hive_service: HiveService = HiveService(hive_repo, apiary_repo)
+
+    result: bool = hive_service.delete_hive(1)
+
+    assert result is True
+
+
+def test_can_not_delete_hive_missing_hive_id(
+    hive_repo: MagicMock, apiary_repo: MagicMock
+) -> None:
+    hive_repo.find_by_hive_id.return_value = None
+    hive_repo.delete.return_value = False
+    hive_service: HiveService = HiveService(hive_repo, apiary_repo)
+
+    results: bool = hive_service.delete_hive(999)
+
+    assert results is False
+
+
+def test_can_not_delete_hive_invalid_hive_id(
+    hive_repo: MagicMock, apiary_repo: MagicMock
+) -> None:
+    hive_repo.delete.return_value = False
+    hive_repo.find_by_hive_id.return_value = None
+    hive_service: HiveService = HiveService(hive_repo, apiary_repo)
+
+    with pytest.raises(ValueError, match="Invalid hive_id"):
+        hive_service.delete_hive(-1)

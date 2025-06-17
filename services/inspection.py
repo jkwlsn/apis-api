@@ -68,3 +68,7 @@ class InspectionService:
             inspection_timestamp=inspection_timestamp,
             colony_id=colony_id,
         )
+
+    def delete_inspection(self, inspection_id: int) -> bool:
+        self._validate_inspection_id(inspection_id)
+        return bool(self.inspection_repo.delete(inspection_id))

@@ -46,3 +46,7 @@ class HiveService:
         if not bool(self.apiary_repo.find_by_apiary_id(apiary_id=apiary_id)):
             raise ValueError(self.apiary_id_invalid)
         return self.hive_repo.update(hive_id=hive_id, name=name, apiary_id=apiary_id)
+
+    def delete_hive(self, hive_id: int) -> bool:
+        self._validate_hive_id(hive_id)
+        return bool(self.hive_repo.delete(hive_id))

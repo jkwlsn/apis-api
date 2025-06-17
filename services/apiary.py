@@ -31,3 +31,6 @@ class ApiaryService:
         if not self.user_repo.find_by_user_id(user_id):
             raise ValueError(self.invalid_user_id)
         return self.apiary_repo.create(name=name, location=location, user_id=user_id)
+
+    def find_apiary_by_apiary_id(self, apiary_id: int) -> Apiary | None:
+        return self.apiary_repo.find_by_apiary_id(apiary_id=apiary_id)

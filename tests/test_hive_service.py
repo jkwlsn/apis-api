@@ -4,6 +4,7 @@ from unittest.mock import MagicMock
 
 import pytest
 
+from models.apiary import Apiary
 from models.hive import Hive
 from services.hive import HiveService
 
@@ -153,3 +154,71 @@ def test_can_not_find_hives_by_invalid_apiary_id(
 
     with pytest.raises(ValueError, match="Invalid apiary_id"):
         hive_service.find_hives_by_apiary_id(-1)
+
+
+def test_update_hive(
+    hive_repo: MagicMock, apiary_repo: MagicMock, test_data: Hive
+) -> None:
+    hive_repo.find_by_hive_id.return_value = test_data
+    apiary_repo.find_by_apiary_id.return_value = Apiary(1, "Happy Bees", "Kent", 1)
+    hive_repo.update.return_value = test_data
+    hive_service: HiveService = HiveService(hive_repo, apiary_repo)
+
+    results: Hive | None = hive_service.update_hive(1, "Hive 1", 1)
+
+    assert results.hive_id == test_data.hive_id
+    assert results.name == test_data.name
+    assert results.apiary_id == test_data.apiary_id
+
+
+def test_can_not_update_hive_invalid_hive_id(
+    hive_repo: MagicMock, apiary_repo: MagicMock, test_data: Hive
+) -> None:
+    hive_repo.update.return_value = test_data
+    hive_id = -1
+    name = "Hive 1"
+    apiary_id = 1
+    hive_service: HiveService = HiveService(hive_repo, apiary_repo)
+
+    with pytest.raises(ValueError, match="Invalid hive_id"):
+        hive_service.update_hive(hive_id, name, apiary_id)
+
+
+def test_can_not_update_hive_missing_hive_id(
+    hive_repo: MagicMock, apiary_repo: MagicMock
+) -> None:
+    hive_repo.find_by_hive_id.return_value = None
+    hive_service: HiveService = HiveService(hive_repo, apiary_repo)
+    hive_id = 999
+    name = "Hive 1"
+    apiary_id = 1
+
+    with pytest.raises(ValueError, match="Invalid hive_id"):
+        hive_service.update_hive(hive_id, name, apiary_id)
+
+
+def test_can_not_update_hive_invalid_apiary_id(
+    hive_repo: MagicMock, apiary_repo: MagicMock, test_data: Hive
+) -> None:
+    hive_repo.update.return_value = test_data
+    hive_id = 1
+    name = "Hive 1"
+    apiary_id = -1
+    hive_service: HiveService = HiveService(hive_repo, apiary_repo)
+
+    with pytest.raises(ValueError, match="Invalid apiary_id"):
+        hive_service.update_hive(hive_id, name, apiary_id)
+
+
+def test_can_not_update_hive_missing_apiary_id(
+    hive_repo: MagicMock, apiary_repo: MagicMock, test_data: Hive
+) -> None:
+    hive_repo.update.return_value = test_data
+    apiary_repo.find_by_apiary_id.return_value = None
+    hive_id = 1
+    name = "Hive 1"
+    apiary_id = 999
+    hive_service: HiveService = HiveService(hive_repo, apiary_repo)
+
+    with pytest.raises(ValueError, match="Invalid apiary_id"):
+        hive_service.update_hive(hive_id, name, apiary_id)

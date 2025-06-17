@@ -121,3 +121,43 @@ def test_can_not_find_action_by_invalid_action_id(
 
     with pytest.raises(ValueError, match="Invalid action_id"):
         action_service.find_action_by_action_id(action_id)
+
+
+def test_find_actions_by_inspection_id(
+    action_repo: MagicMock,
+    inspection_repo: MagicMock,
+    test_data: Action,
+    test_data_2: Action,
+) -> None:
+    action_repo.find_by_inspection_id.return_value = [test_data, test_data_2]
+    action_service: ActionService = ActionService(action_repo, inspection_repo)
+
+    results: list[Action] | None = action_service.find_actions_by_inspection_id(1)
+
+    assert isinstance(results, list)
+    assert len(results) == 2
+    assert isinstance(results[0], Action)
+    assert results[0].inspection_id == test_data.inspection_id
+    assert isinstance(results[1], Action)
+    assert results[1].inspection_id == test_data_2.inspection_id
+
+
+def test_can_not_find_action_by_missing_inspection_id(
+    action_repo: MagicMock, inspection_repo: MagicMock
+) -> None:
+    action_repo.find_by_inspection_id.return_value = None
+    action_service: ActionService = ActionService(action_repo, inspection_repo)
+
+    results: list[Action] | None = action_service.find_actions_by_inspection_id(999)
+
+    assert results is None
+
+
+def test_can_not_find_action_by_invalid_inspection_id(
+    action_repo: MagicMock, inspection_repo: MagicMock
+) -> None:
+    action_repo.find_by_inspection_id.return_value = None
+    action_service: ActionService = ActionService(action_repo, inspection_repo)
+
+    with pytest.raises(ValueError, match="Invalid inspection_id"):
+        action_service.find_actions_by_inspection_id(-1)

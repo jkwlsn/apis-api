@@ -146,3 +146,53 @@ def test_can_not_find_inspection_by_invalid_inspection_id(
 
     with pytest.raises(ValueError, match="Invalid inspection_id"):
         inspection_service.find_inspection_by_inspection_id(inspection_id)
+
+
+def test_find_inspections_by_colony_id(
+    inspection_repo: MagicMock,
+    colony_repo: MagicMock,
+    test_data: Inspection,
+    test_data_2: Inspection,
+) -> None:
+    inspection_repo.find_by_colony_id.return_value = [test_data, test_data_2]
+    inspection_service: InspectionService = InspectionService(
+        inspection_repo, colony_repo
+    )
+
+    results: list[Inspection] | None = inspection_service.find_inspections_by_colony_id(
+        1
+    )
+
+    assert isinstance(results, list)
+    assert len(results) == 2
+    assert isinstance(results[0], Inspection)
+    assert results[0].colony_id == test_data.colony_id
+    assert isinstance(results[1], Inspection)
+    assert results[1].colony_id == test_data_2.colony_id
+
+
+def test_can_not_find_inspection_by_missing_colony_id(
+    inspection_repo: MagicMock, colony_repo: MagicMock
+) -> None:
+    inspection_repo.find_by_colony_id.return_value = None
+    inspection_service: InspectionService = InspectionService(
+        inspection_repo, colony_repo
+    )
+
+    results: list[Inspection] | None = inspection_service.find_inspections_by_colony_id(
+        999
+    )
+
+    assert results is None
+
+
+def test_can_not_find_inspection_by_invalid_colony_id(
+    inspection_repo: MagicMock, colony_repo: MagicMock
+) -> None:
+    inspection_repo.find_by_colony_id.return_value = None
+    inspection_service: InspectionService = InspectionService(
+        inspection_repo, colony_repo
+    )
+
+    with pytest.raises(ValueError, match="Invalid colony_id"):
+        inspection_service.find_inspections_by_colony_id(-1)

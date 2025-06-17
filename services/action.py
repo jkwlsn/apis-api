@@ -62,3 +62,7 @@ class ActionService:
             notes=notes,
             inspection_id=inspection_id,
         )
+
+    def delete_action(self, action_id: int) -> bool:
+        self._validate_action_id(action_id)
+        return bool(self.action_repo.delete(action_id))

@@ -31,3 +31,8 @@ class HiveService:
         if hive_id <= 0:
             raise ValueError(self.hive_id_invalid)
         return self.hive_repo.find_by_hive_id(hive_id)
+
+    def find_hives_by_apiary_id(self, apiary_id: int) -> list[Hive] | None:
+        if apiary_id <= 0:
+            raise ValueError(self.apiary_id_invalid)
+        return self.hive_repo.find_by_apiary_id(apiary_id)

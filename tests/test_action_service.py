@@ -268,3 +268,35 @@ def test_can_not_update_action_missing_inspection_id(
             notes=notes,
             inspection_id=inspection_id,
         )
+
+
+def test_delete_action(action_repo: MagicMock, inspection_repo: MagicMock) -> None:
+    action_repo.delete.return_value = True
+    action_service: ActionService = ActionService(action_repo, inspection_repo)
+
+    result: bool = action_service.delete_action(1)
+
+    assert result is True
+
+
+def test_can_not_delete_action_missing_action_id(
+    action_repo: MagicMock, inspection_repo: MagicMock
+) -> None:
+    action_repo.find_by_action_id.return_value = None
+    action_repo.delete.return_value = False
+    action_service: ActionService = ActionService(action_repo, inspection_repo)
+
+    results: bool = action_service.delete_action(999)
+
+    assert results is False
+
+
+def test_can_not_delete_action_invalid_action_id(
+    action_repo: MagicMock, inspection_repo: MagicMock
+) -> None:
+    action_repo.delete.return_value = False
+    action_repo.find_by_action_id.return_value = None
+    action_service: ActionService = ActionService(action_repo, inspection_repo)
+
+    with pytest.raises(ValueError, match="Invalid action_id"):
+        action_service.delete_action(-1)

@@ -79,3 +79,39 @@ def test_can_not_create_hive_missing_apiary_id(
 
     with pytest.raises(ValueError, match="Invalid apiary_id"):
         hive_service.create_hive(name, apiary_id)
+
+
+def test_find_hive_by_hive_id(
+    hive_repo: MagicMock, apiary_repo: MagicMock, test_data: Hive
+) -> None:
+    hive_repo.find_by_hive_id.return_value = test_data
+    hive_service: HiveService = HiveService(hive_repo, apiary_repo)
+
+    results: Hive | None = hive_service.find_hive_by_hive_id(1)
+
+    assert isinstance(results, Hive)
+    assert results.hive_id == test_data.hive_id
+    assert results.name == test_data.name
+    assert results.apiary_id == test_data.apiary_id
+
+
+def test_can_not_find_hive_by_missing_hive_id(
+    hive_repo: MagicMock, apiary_repo: MagicMock
+) -> None:
+    hive_repo.find_by_hive_id.return_value = None
+    hive_service: HiveService = HiveService(hive_repo, apiary_repo)
+
+    result = hive_service.find_hive_by_hive_id(999)
+
+    assert result is None
+
+
+def test_can_not_find_hive_by_invalid_hive_id(
+    hive_repo: MagicMock, apiary_repo: MagicMock
+) -> None:
+    hive_repo.find_by_hive_id.return_value = None
+    hive_service: HiveService = HiveService(hive_repo, apiary_repo)
+
+    with pytest.raises(ValueError, match="Invalid hive_id"):
+        hive_service.find_hive_by_hive_id(-1)
+

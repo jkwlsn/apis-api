@@ -315,3 +315,41 @@ def test_can_not_update_inspection_missing_colony_id(
             inspection_timestamp=inspection_timestamp,
             colony_id=colony_id,
         )
+
+
+def test_delete_inspection(inspection_repo: MagicMock, colony_repo: MagicMock) -> None:
+    inspection_repo.delete.return_value = True
+    inspection_service: InspectionService = InspectionService(
+        inspection_repo, colony_repo
+    )
+
+    result: bool = inspection_service.delete_inspection(1)
+
+    assert result is True
+
+
+def test_can_not_delete_inspection_missing_inspection_id(
+    inspection_repo: MagicMock, colony_repo: MagicMock
+) -> None:
+    inspection_repo.find_by_inspection_id.return_value = None
+    inspection_repo.delete.return_value = False
+    inspection_service: InspectionService = InspectionService(
+        inspection_repo, colony_repo
+    )
+
+    results: bool = inspection_service.delete_inspection(999)
+
+    assert results is False
+
+
+def test_can_not_delete_inspection_invalid_inspection_id(
+    inspection_repo: MagicMock, colony_repo: MagicMock
+) -> None:
+    inspection_repo.delete.return_value = False
+    inspection_repo.find_by_inspection_id.return_value = None
+    inspection_service: InspectionService = InspectionService(
+        inspection_repo, colony_repo
+    )
+
+    with pytest.raises(ValueError, match="Invalid inspection_id"):
+        inspection_service.delete_inspection(-1)

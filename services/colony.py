@@ -27,3 +27,7 @@ class ColonyService:
         if not bool(self.hive_repo.find_by_hive_id(hive_id)):
             raise ValueError(self.invalid_hive_id)
         return self.colony_repo.create(hive_id)
+
+    def find_colony_by_colony_id(self, colony_id: int) -> Colony | None:
+        self._validate_colony_id(colony_id)
+        return self.colony_repo.find_by_colony_id(colony_id)

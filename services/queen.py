@@ -31,3 +31,7 @@ class QueenService:
         return self.queen_repo.create(
             colour=colour, clipped=clipped, colony_id=colony_id
         )
+
+    def find_queen_by_queen_id(self, queen_id: int) -> Queen | None:
+        self._validate_queen_id(queen_id)
+        return self.queen_repo.find_by_queen_id(queen_id)

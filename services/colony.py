@@ -44,3 +44,7 @@ class ColonyService:
         if not bool(self.hive_repo.find_by_hive_id(hive_id)):
             raise ValueError(self.invalid_hive_id)
         return self.colony_repo.update(colony_id=colony_id, hive_id=hive_id)
+
+    def delete_colony(self, colony_id: int) -> bool:
+        self._validate_colony_id(colony_id)
+        return bool(self.colony_repo.delete(colony_id))

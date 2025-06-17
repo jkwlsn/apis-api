@@ -15,26 +15,34 @@ class HiveService:
         self.apiary_id_invalid = "Invalid apiary_id"
         self.hive_name_invalid = "Hive name is required"
 
-    def create_hive(self, name: str, apiary_id: int) -> Hive | None:
-        if len(name.strip()) <= 0:
+    def _validate_hive_id(self, hive_id: int) -> None:
+        if not isinstance(hive_id, int) or hive_id <= 0:
+            raise ValueError(self.hive_id_invalid)
+
+    def _validate_apiary_id(self, apiary_id: int) -> None:
+        if not isinstance(apiary_id, int) or apiary_id <= 0:
+            raise ValueError(self.apiary_id_invalid)
+
+    def _validate_name(self, name: str) -> None:
+        if not isinstance(name, str) or len(name.strip()) <= 0:
             raise ValueError(self.hive_name_invalid)
 
-        if apiary_id <= 0:
-            raise ValueError(self.apiary_id_invalid)
+    def create_hive(self, name: str, apiary_id: int) -> Hive | None:
+        self._validate_apiary_id(apiary_id)
+
+        self._validate_name(name)
 
         if self.apiary_repo.find_by_apiary_id(apiary_id) is None:
             raise ValueError(self.apiary_id_invalid)
 
-        return self.hive_repo.create(name, apiary_id)
+        return self.hive_repo.create(name.strip(), apiary_id)
 
     def find_hive_by_hive_id(self, hive_id: int) -> Hive | None:
-        if hive_id <= 0:
-            raise ValueError(self.hive_id_invalid)
+        self._validate_hive_id(hive_id)
         return self.hive_repo.find_by_hive_id(hive_id)
 
     def find_hives_by_apiary_id(self, apiary_id: int) -> list[Hive] | None:
-        if apiary_id <= 0:
-            raise ValueError(self.apiary_id_invalid)
+        self._validate_apiary_id(apiary_id)
         return self.hive_repo.find_by_apiary_id(apiary_id)
 
     def update_hive(self, hive_id: int, name: str, apiary_id: int) -> Hive | None:

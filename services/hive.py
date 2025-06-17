@@ -36,3 +36,13 @@ class HiveService:
         if apiary_id <= 0:
             raise ValueError(self.apiary_id_invalid)
         return self.hive_repo.find_by_apiary_id(apiary_id)
+
+    def update_hive(self, hive_id: int, name: str, apiary_id: int) -> Hive | None:
+        self._validate_hive_id(hive_id)
+        self._validate_apiary_id(apiary_id)
+        self._validate_name(name)
+        if not bool(self.hive_repo.find_by_hive_id(hive_id=hive_id)):
+            raise ValueError(self.hive_id_invalid)
+        if not bool(self.apiary_repo.find_by_apiary_id(apiary_id=apiary_id)):
+            raise ValueError(self.apiary_id_invalid)
+        return self.hive_repo.update(hive_id=hive_id, name=name, apiary_id=apiary_id)

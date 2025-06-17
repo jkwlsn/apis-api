@@ -53,3 +53,8 @@ class ApiaryService:
         return self.apiary_repo.update(
             apiary_id=apiary_id, name=name, location=location, user_id=user_id
         )
+
+    def delete_apiary(self, apiary_id: int) -> bool:
+        if not self.apiary_repo.find_by_apiary_id(apiary_id):
+            raise ValueError(self.invalid_apiary)
+        return self.apiary_repo.delete(apiary_id=apiary_id)

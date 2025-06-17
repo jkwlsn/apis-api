@@ -35,3 +35,7 @@ class QueenService:
     def find_queen_by_queen_id(self, queen_id: int) -> Queen | None:
         self._validate_queen_id(queen_id)
         return self.queen_repo.find_by_queen_id(queen_id)
+
+    def find_queen_by_colony_id(self, colony_id: int) -> Queen | None:
+        self._validate_colony_id(colony_id)
+        return self.queen_repo.find_by_colony_id(colony_id)

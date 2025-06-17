@@ -31,3 +31,7 @@ class ColonyService:
     def find_colony_by_colony_id(self, colony_id: int) -> Colony | None:
         self._validate_colony_id(colony_id)
         return self.colony_repo.find_by_colony_id(colony_id)
+
+    def find_colony_by_hive_id(self, hive_id: int) -> Colony | None:
+        self._validate_hive_id(hive_id)
+        return self.colony_repo.find_by_hive_id(hive_id)

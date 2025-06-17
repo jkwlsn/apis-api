@@ -161,3 +161,110 @@ def test_can_not_find_action_by_invalid_inspection_id(
 
     with pytest.raises(ValueError, match="Invalid inspection_id"):
         action_service.find_actions_by_inspection_id(-1)
+
+
+def test_update_action(
+    action_repo: MagicMock, inspection_repo: MagicMock, test_data: Action
+) -> None:
+    action_id = 1
+    notes = "Example note"
+    inspection_id = 1
+    action_repo.find_by_action_id.return_value = test_data
+    inspection_repo.find_by_inspection_id.return_value = Action(1, "Example notes", 1)
+    action_repo.update.return_value = test_data
+    action_service: ActionService = ActionService(action_repo, inspection_repo)
+
+    results: Action | None = action_service.update_action(
+        action_id=action_id,
+        notes=notes,
+        inspection_id=inspection_id,
+    )
+
+    assert results.action_id == test_data.action_id
+    assert results.inspection_id == test_data.inspection_id
+
+
+def test_can_not_update_action_invalid_action_id(
+    action_repo: MagicMock, inspection_repo: MagicMock, test_data: Action
+) -> None:
+    action_repo.update.return_value = test_data
+    action_id = -1
+    notes = "Example note"
+    inspection_id = 1
+    action_service: ActionService = ActionService(action_repo, inspection_repo)
+
+    with pytest.raises(ValueError, match="Invalid action_id"):
+        action_service.update_action(
+            action_id=action_id,
+            notes=notes,
+            inspection_id=inspection_id,
+        )
+
+
+def test_can_not_update_action_missing_action_id(
+    action_repo: MagicMock, inspection_repo: MagicMock
+) -> None:
+    action_id = 999
+    notes = "Example note"
+    inspection_id = 1
+    action_repo.find_by_action_id.return_value = None
+    action_service: ActionService = ActionService(action_repo, inspection_repo)
+
+    with pytest.raises(ValueError, match="Invalid action_id"):
+        action_service.update_action(
+            action_id=action_id,
+            notes=notes,
+            inspection_id=inspection_id,
+        )
+
+
+def test_can_not_update_action_invalid_notes(
+    action_repo: MagicMock, inspection_repo: MagicMock
+) -> None:
+    action_id = 1
+    notes = 9999
+    inspection_id = 1
+    action_repo.find_by_action_id.return_value = None
+    action_service: ActionService = ActionService(action_repo, inspection_repo)
+
+    with pytest.raises(TypeError, match="Invalid notes"):
+        action_service.update_action(
+            action_id=action_id,
+            notes=notes,
+            inspection_id=inspection_id,
+        )
+
+
+def test_can_not_update_action_invalid_inspection_id(
+    action_repo: MagicMock, inspection_repo: MagicMock, test_data: Action
+) -> None:
+    action_repo.update.return_value = test_data
+    action_id = 1
+    notes = "Example note"
+    inspection_id = -1
+    action_service: ActionService = ActionService(action_repo, inspection_repo)
+
+    with pytest.raises(ValueError, match="Invalid inspection_id"):
+        action_service.update_action(
+            action_id=action_id,
+            notes=notes,
+            inspection_id=inspection_id,
+        )
+
+
+def test_can_not_update_action_missing_inspection_id(
+    action_repo: MagicMock, inspection_repo: MagicMock, test_data: Action
+) -> None:
+    action_repo.update.return_value = test_data
+    inspection_repo.find_by_inspection_id.return_value = None
+    action_id = 1
+    notes = "Example note"
+    inspection_id = 999
+    action_service: ActionService = ActionService(action_repo, inspection_repo)
+
+    with pytest.raises(ValueError, match="Invalid inspection_id"):
+        action_service.update_action(
+            action_id=action_id,
+            notes=notes,
+            inspection_id=inspection_id,
+        )

@@ -54,3 +54,17 @@ class InspectionService:
     def find_inspections_by_colony_id(self, colony_id: int) -> list[Inspection] | None:
         self._validate_colony_id(colony_id)
         return self.inspection_repo.find_by_colony_id(colony_id)
+
+    def update_inspection(
+        self, inspection_id: int, inspection_timestamp: datetime, colony_id: int
+    ) -> Inspection | None:
+        self._validate_inspection_id(inspection_id)
+        self._validate_inspection_timestamp(inspection_timestamp=inspection_timestamp)
+        self._validate_colony_id(colony_id)
+        self._validate_inspection_exists(inspection_id)
+        self._validate_colony_exists(colony_id)
+        return self.inspection_repo.update(
+            inspection_id=inspection_id,
+            inspection_timestamp=inspection_timestamp,
+            colony_id=colony_id,
+        )

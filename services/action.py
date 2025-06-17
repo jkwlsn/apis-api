@@ -48,3 +48,17 @@ class ActionService:
     def find_actions_by_inspection_id(self, inspection_id: int) -> list[Action] | None:
         self._validate_inspection_id(inspection_id)
         return self.action_repo.find_by_inspection_id(inspection_id)
+
+    def update_action(
+        self, action_id: int, notes: str, inspection_id: int
+    ) -> Action | None:
+        self._validate_action_id(action_id)
+        self._validate_notes(notes=notes)
+        self._validate_inspection_id(inspection_id)
+        self._validate_action_exists(action_id)
+        self._validate_inspection_exists(inspection_id)
+        return self.action_repo.update(
+            action_id=action_id,
+            notes=notes,
+            inspection_id=inspection_id,
+        )

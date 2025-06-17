@@ -225,3 +225,34 @@ def test_update_apiary_user_id_does_not_exist(
 
     with pytest.raises(ValueError, match="Invalid user_id"):
         apiary_service.update_apiary(apiary_id, name, location, user_id)
+
+
+def test_delete_apiary(apiary_repo: MagicMock, user_repo: MagicMock) -> None:
+    apiary_repo.delete.return_value = True
+    apiary_service: ApiaryService = ApiaryService(apiary_repo, user_repo)
+
+    result: bool = apiary_service.delete_apiary(1)
+
+    assert result is True
+
+
+def test_can_not_delete_apiary_apiary_id_does_not_exist(
+    apiary_repo: MagicMock, user_repo: MagicMock
+) -> None:
+    apiary_repo.find_by_apiary_id.return_value = None
+    apiary_repo.delete.return_value = False
+    apiary_service: ApiaryService = ApiaryService(apiary_repo, user_repo)
+
+    with pytest.raises(ValueError, match="Invalid apiary_id"):
+        apiary_service.delete_apiary(999)
+
+
+def test_can_not_delete_apiary_invalid_apiary_id(
+    apiary_repo: MagicMock, user_repo: MagicMock
+) -> None:
+    apiary_repo.delete.return_value = False
+    apiary_repo.find_by_apiary_id.return_value = None
+    apiary_service: ApiaryService = ApiaryService(apiary_repo, user_repo)
+
+    with pytest.raises(ValueError, match="Invalid apiary_id"):
+        apiary_service.delete_apiary(-1)

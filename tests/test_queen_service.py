@@ -74,3 +74,41 @@ def test_can_not_create_queen_missing_colony_id(
 
     with pytest.raises(ValueError, match="Invalid colony_id"):
         queen_service.create_queen(colour=colour, clipped=clipped, colony_id=colony_id)
+
+
+def test_find_queen_by_queen_id(
+    queen_repo: MagicMock, colony_repo: MagicMock, test_data: Queen
+) -> None:
+    queen_repo.find_by_queen_id.return_value = test_data
+    queen_service: QueenService = QueenService(queen_repo, colony_repo)
+
+    results: Queen | None = queen_service.find_queen_by_queen_id(1)
+
+    assert isinstance(results, Queen)
+    assert results.queen_id == test_data.queen_id
+    assert results.colour == test_data.colour
+    assert results.clipped is True
+    assert results.colony_id == test_data.colony_id
+
+
+def test_can_not_find_queen_by_missing_queen_id(
+    queen_repo: MagicMock, colony_repo: MagicMock
+) -> None:
+    queen_id = 999
+    queen_repo.find_by_queen_id.return_value = None
+    queen_service: QueenService = QueenService(queen_repo, colony_repo)
+
+    result = queen_service.find_queen_by_queen_id(queen_id)
+
+    assert result is None
+
+
+def test_can_not_find_queen_by_invalid_queen_id(
+    queen_repo: MagicMock, colony_repo: MagicMock
+) -> None:
+    queen_id = -1
+    queen_repo.find_by_queen_id.return_value = None
+    queen_service: QueenService = QueenService(queen_repo, colony_repo)
+
+    with pytest.raises(ValueError, match="Invalid queen_id"):
+        queen_service.find_queen_by_queen_id(queen_id)

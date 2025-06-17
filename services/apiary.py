@@ -37,3 +37,19 @@ class ApiaryService:
 
     def find_apiaries_by_user_id(self, user_id: int) -> list[Apiary] | None:
         return self.apiary_repo.find_by_user_id(user_id=user_id)
+
+    def update_apiary(
+        self, apiary_id: int, name: str, location: str, user_id: int
+    ) -> Apiary | None:
+        name = name.strip()
+        location = location.strip()
+        self._validate_data(name, location, user_id)
+        if not isinstance(apiary_id, int) or apiary_id <= 0:
+            raise ValueError(self.invalid_apiary)
+        if not self.user_repo.find_by_user_id(user_id):
+            raise ValueError(self.invalid_user_id)
+        if not self.apiary_repo.find_by_apiary_id(apiary_id):
+            raise ValueError(self.invalid_apiary)
+        return self.apiary_repo.update(
+            apiary_id=apiary_id, name=name, location=location, user_id=user_id
+        )

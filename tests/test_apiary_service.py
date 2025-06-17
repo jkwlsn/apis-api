@@ -64,7 +64,7 @@ def test_create_apiary_missing_location(
 ) -> None:
     apiary_repo.create.return_value = test_data
     name = "Happy Bees"
-    location = ""
+    location = "  "
     user_id = 1
     apiary_service: ApiaryService = ApiaryService(apiary_repo, user_repo)
 
@@ -97,3 +97,29 @@ def test_create_apiary_user_id_does_not_exist(
 
     with pytest.raises(ValueError, match="Invalid user_id"):
         apiary_service.create_apiary(name, location, user_id)
+
+
+def test_find_apiary_by_apiary_id(
+    apiary_repo: MagicMock, user_repo: MagicMock, test_data: Apiary
+) -> None:
+    apiary_repo.find_by_apiary_id.return_value = test_data
+    apiary_service: ApiaryService = ApiaryService(apiary_repo, user_repo)
+
+    results: Apiary | None = apiary_service.find_apiary_by_apiary_id(1)
+
+    assert isinstance(results, Apiary)
+    assert results.apiary_id == test_data.apiary_id
+    assert results.name == test_data.name
+    assert results.location == test_data.location
+    assert results.user_id == test_data.user_id
+
+
+def test_can_not_find_apiary_by_apiary_id(
+    apiary_repo: MagicMock, user_repo: MagicMock
+) -> None:
+    apiary_repo.find_by_apiary_id.return_value = None
+    apiary_service: ApiaryService = ApiaryService(apiary_repo, user_repo)
+
+    result = apiary_service.find_apiary_by_apiary_id(999)
+
+    assert result is None

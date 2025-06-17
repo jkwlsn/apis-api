@@ -34,3 +34,6 @@ class ApiaryService:
 
     def find_apiary_by_apiary_id(self, apiary_id: int) -> Apiary | None:
         return self.apiary_repo.find_by_apiary_id(apiary_id=apiary_id)
+
+    def find_apiaries_by_user_id(self, user_id: int) -> list[Apiary] | None:
+        return self.apiary_repo.find_by_user_id(user_id=user_id)

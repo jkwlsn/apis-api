@@ -135,3 +135,66 @@ def test_can_not_find_colony_by_invalid_hive_id(
 
     with pytest.raises(ValueError, match="Invalid hive_id"):
         colony_service.find_colony_by_hive_id(-1)
+
+
+def test_update_colony(
+    colony_repo: MagicMock, hive_repo: MagicMock, test_data: Colony
+) -> None:
+    colony_repo.find_by_colony_id.return_value = test_data
+    hive_repo.find_by_hive_id.return_value = Hive(1, "Happy Bees", "Kent", 1)
+    colony_repo.update.return_value = test_data
+    colony_service: ColonyService = ColonyService(colony_repo, hive_repo)
+
+    results: Colony | None = colony_service.update_colony(1, "Colony 1", 1)
+
+    assert results.colony_id == test_data.colony_id
+    assert results.hive_id == test_data.hive_id
+
+
+def test_can_not_update_colony_invalid_colony_id(
+    colony_repo: MagicMock, hive_repo: MagicMock, test_data: Colony
+) -> None:
+    colony_repo.update.return_value = test_data
+    colony_id = -1
+    hive_id = 1
+    colony_service: ColonyService = ColonyService(colony_repo, hive_repo)
+
+    with pytest.raises(ValueError, match="Invalid colony_id"):
+        colony_service.update_colony(colony_id, hive_id)
+
+
+def test_can_not_update_colony_missing_colony_id(
+    colony_repo: MagicMock, hive_repo: MagicMock
+) -> None:
+    colony_repo.find_by_colony_id.return_value = None
+    colony_service: ColonyService = ColonyService(colony_repo, hive_repo)
+    colony_id = 999
+    hive_id = 1
+
+    with pytest.raises(ValueError, match="Invalid colony_id"):
+        colony_service.update_colony(colony_id, hive_id)
+
+
+def test_can_not_update_colony_invalid_hive_id(
+    colony_repo: MagicMock, hive_repo: MagicMock, test_data: Colony
+) -> None:
+    colony_repo.update.return_value = test_data
+    colony_id = 1
+    hive_id = -1
+    colony_service: ColonyService = ColonyService(colony_repo, hive_repo)
+
+    with pytest.raises(ValueError, match="Invalid hive_id"):
+        colony_service.update_colony(colony_id, hive_id)
+
+
+def test_can_not_update_colony_missing_hive_id(
+    colony_repo: MagicMock, hive_repo: MagicMock, test_data: Colony
+) -> None:
+    colony_repo.update.return_value = test_data
+    hive_repo.find_by_hive_id.return_value = None
+    colony_id = 1
+    hive_id = 999
+    colony_service: ColonyService = ColonyService(colony_repo, hive_repo)
+
+    with pytest.raises(ValueError, match="Invalid hive_id"):
+        colony_service.update_colony(colony_id, hive_id)

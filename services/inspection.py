@@ -50,3 +50,7 @@ class InspectionService:
     def find_inspection_by_inspection_id(self, inspection_id: int) -> Inspection | None:
         self._validate_inspection_id(inspection_id)
         return self.inspection_repo.find_by_inspection_id(inspection_id)
+
+    def find_inspections_by_colony_id(self, colony_id: int) -> list[Inspection] | None:
+        self._validate_colony_id(colony_id)
+        return self.inspection_repo.find_by_colony_id(colony_id)

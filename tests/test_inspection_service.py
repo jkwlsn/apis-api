@@ -196,3 +196,122 @@ def test_can_not_find_inspection_by_invalid_colony_id(
 
     with pytest.raises(ValueError, match="Invalid colony_id"):
         inspection_service.find_inspections_by_colony_id(-1)
+
+
+def test_update_inspection(
+    inspection_repo: MagicMock, colony_repo: MagicMock, test_data: Inspection
+) -> None:
+    inspection_id = 1
+    inspection_timestamp = datetime(2020, 6, 23, 2, 10, 25, tzinfo=ZoneInfo("Etc/UTC"))
+    colony_id = 1
+    inspection_repo.find_by_inspection_id.return_value = test_data
+    colony_repo.find_by_colony_id.return_value = Colony(1, 1)
+    inspection_repo.update.return_value = test_data
+    inspection_service: InspectionService = InspectionService(
+        inspection_repo, colony_repo
+    )
+
+    results: Inspection | None = inspection_service.update_inspection(
+        inspection_id=inspection_id,
+        inspection_timestamp=inspection_timestamp,
+        colony_id=colony_id,
+    )
+
+    assert results.inspection_id == test_data.inspection_id
+    assert results.colony_id == test_data.colony_id
+
+
+def test_can_not_update_inspection_invalid_inspection_id(
+    inspection_repo: MagicMock, colony_repo: MagicMock, test_data: Inspection
+) -> None:
+    inspection_repo.update.return_value = test_data
+    inspection_id = -1
+    inspection_timestamp = datetime(2020, 6, 23, 2, 10, 25, tzinfo=ZoneInfo("Etc/UTC"))
+    colony_id = 1
+    inspection_service: InspectionService = InspectionService(
+        inspection_repo, colony_repo
+    )
+
+    with pytest.raises(ValueError, match="Invalid inspection_id"):
+        inspection_service.update_inspection(
+            inspection_id=inspection_id,
+            inspection_timestamp=inspection_timestamp,
+            colony_id=colony_id,
+        )
+
+
+def test_can_not_update_inspection_missing_inspection_id(
+    inspection_repo: MagicMock, colony_repo: MagicMock
+) -> None:
+    inspection_id = 999
+    inspection_timestamp = datetime(2020, 6, 23, 2, 10, 25, tzinfo=ZoneInfo("Etc/UTC"))
+    colony_id = 1
+    inspection_repo.find_by_inspection_id.return_value = None
+    inspection_service: InspectionService = InspectionService(
+        inspection_repo, colony_repo
+    )
+
+    with pytest.raises(ValueError, match="Invalid inspection_id"):
+        inspection_service.update_inspection(
+            inspection_id=inspection_id,
+            inspection_timestamp=inspection_timestamp,
+            colony_id=colony_id,
+        )
+
+
+def test_can_not_update_inspection_invalid_inspection_timestamp(
+    inspection_repo: MagicMock, colony_repo: MagicMock
+) -> None:
+    inspection_id = 1
+    inspection_timestamp = "2025-06-10"
+    colony_id = 1
+    inspection_repo.find_by_inspection_id.return_value = test_data
+    inspection_service: InspectionService = InspectionService(
+        inspection_repo, colony_repo
+    )
+
+    with pytest.raises(TypeError, match="Invalid inspection_timestamp"):
+        inspection_service.update_inspection(
+            inspection_id=inspection_id,
+            inspection_timestamp=inspection_timestamp,
+            colony_id=colony_id,
+        )
+
+
+def test_can_not_update_inspection_invalid_colony_id(
+    inspection_repo: MagicMock, colony_repo: MagicMock, test_data: Inspection
+) -> None:
+    inspection_repo.update.return_value = test_data
+    inspection_id = 1
+    inspection_timestamp = datetime(2020, 6, 23, 2, 10, 25, tzinfo=ZoneInfo("Etc/UTC"))
+    colony_id = -1
+    inspection_service: InspectionService = InspectionService(
+        inspection_repo, colony_repo
+    )
+
+    with pytest.raises(ValueError, match="Invalid colony_id"):
+        inspection_service.update_inspection(
+            inspection_id=inspection_id,
+            inspection_timestamp=inspection_timestamp,
+            colony_id=colony_id,
+        )
+
+
+def test_can_not_update_inspection_missing_colony_id(
+    inspection_repo: MagicMock, colony_repo: MagicMock, test_data: Inspection
+) -> None:
+    inspection_repo.update.return_value = test_data
+    colony_repo.find_by_colony_id.return_value = None
+    inspection_id = 1
+    inspection_timestamp = datetime(2020, 6, 23, 2, 10, 25, tzinfo=ZoneInfo("Etc/UTC"))
+    colony_id = 999
+    inspection_service: InspectionService = InspectionService(
+        inspection_repo, colony_repo
+    )
+
+    with pytest.raises(ValueError, match="Invalid colony_id"):
+        inspection_service.update_inspection(
+            inspection_id=inspection_id,
+            inspection_timestamp=inspection_timestamp,
+            colony_id=colony_id,
+        )

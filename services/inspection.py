@@ -46,3 +46,7 @@ class InspectionService:
         return self.inspection_repo.create(
             inspection_timestamp=inspection_timestamp, colony_id=colony_id
         )
+
+    def find_inspection_by_inspection_id(self, inspection_id: int) -> Inspection | None:
+        self._validate_inspection_id(inspection_id)
+        return self.inspection_repo.find_by_inspection_id(inspection_id)

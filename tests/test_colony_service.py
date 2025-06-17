@@ -141,11 +141,11 @@ def test_update_colony(
     colony_repo: MagicMock, hive_repo: MagicMock, test_data: Colony
 ) -> None:
     colony_repo.find_by_colony_id.return_value = test_data
-    hive_repo.find_by_hive_id.return_value = Hive(1, "Happy Bees", "Kent", 1)
+    hive_repo.find_by_hive_id.return_value = Hive(1, "Hive 1", 1)
     colony_repo.update.return_value = test_data
     colony_service: ColonyService = ColonyService(colony_repo, hive_repo)
 
-    results: Colony | None = colony_service.update_colony(1, "Colony 1", 1)
+    results: Colony | None = colony_service.update_colony(1, 1)
 
     assert results.colony_id == test_data.colony_id
     assert results.hive_id == test_data.hive_id

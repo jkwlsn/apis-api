@@ -80,3 +80,39 @@ class ObservationService:
     ) -> Observation | None:
         self._validate_inspection_id(inspection_id)
         return self.observation_repo.find_by_inspection_id(inspection_id)
+
+    def update_observation(
+        self,
+        *,
+        observation_id: int,
+        queenright: bool,
+        queen_cells: int,
+        bias: bool,
+        brood_frames: int,
+        store_frames: int,
+        chalk_brood: bool,
+        foul_brood: bool,
+        varroa_count: int,
+        temper: int,
+        notes: str,
+        inspection_id: int,
+    ) -> Observation | None:
+        self._validate_observation_id(observation_id)
+        self._validate_notes(notes=notes)
+        self._validate_inspection_id(inspection_id)
+        self._validate_observation_exists(observation_id)
+        self._validate_inspection_exists(inspection_id)
+        return self.observation_repo.update(
+            observation_id=observation_id,
+            queenright=queenright,
+            queen_cells=queen_cells,
+            bias=bias,
+            brood_frames=brood_frames,
+            store_frames=store_frames,
+            chalk_brood=chalk_brood,
+            foul_brood=foul_brood,
+            varroa_count=varroa_count,
+            temper=temper,
+            notes=notes,
+            inspection_id=inspection_id,
+        )

@@ -116,3 +116,7 @@ class ObservationService:
             notes=notes,
             inspection_id=inspection_id,
         )
+
+    def delete_observation(self, observation_id: int) -> bool:
+        self._validate_observation_id(observation_id)
+        return bool(self.observation_repo.delete(observation_id))

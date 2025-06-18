@@ -22,16 +22,16 @@ class TestUserSchema:
 
     def test_user_read_valid(self) -> None:
         """Reads valid user"""
-        data = {"id": 1, "username": "test_user", "password": "securepass"}
+        data = {"user_id": 1, "username": "test_user", "password": "securepass"}
         user = UserRead(**data)
-        assert user.id == 1
+        assert user.user_id == 1
         assert user.username == "test_user"
         assert user.password == "securepass"
 
     def test_user_read_invalid_id_type(self) -> None:
         """Fails as user id invalid"""
         with pytest.raises(ValidationError) as exc_info:
-            UserRead(id="not-an-int", username="test_user", password="securepass")
+            UserRead(user_id="not-an-int", username="test_user", password="securepass")
         assert "id" in str(exc_info.value)
 
 

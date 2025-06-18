@@ -505,3 +505,43 @@ def test_can_not_update_observation_missing_inspection_id(
             notes=notes,
             inspection_id=inspection_id,
         )
+
+
+def test_delete_observation(
+    observation_repo: MagicMock, inspection_repo: MagicMock
+) -> None:
+    observation_repo.delete.return_value = True
+    observation_service: ObservationService = ObservationService(
+        observation_repo, inspection_repo
+    )
+
+    result: bool = observation_service.delete_observation(1)
+
+    assert result is True
+
+
+def test_can_not_delete_observation_missing_observation_id(
+    observation_repo: MagicMock, inspection_repo: MagicMock
+) -> None:
+    observation_repo.find_by_observation_id.return_value = None
+    observation_repo.delete.return_value = False
+    observation_service: ObservationService = ObservationService(
+        observation_repo, inspection_repo
+    )
+
+    results: bool = observation_service.delete_observation(999)
+
+    assert results is False
+
+
+def test_can_not_delete_observation_invalid_observation_id(
+    observation_repo: MagicMock, inspection_repo: MagicMock
+) -> None:
+    observation_repo.delete.return_value = False
+    observation_repo.find_by_observation_id.return_value = None
+    observation_service: ObservationService = ObservationService(
+        observation_repo, inspection_repo
+    )
+
+    with pytest.raises(ValueError, match="Invalid observation_id"):
+        observation_service.delete_observation(-1)

@@ -74,3 +74,9 @@ class ObservationService:
     ) -> Observation | None:
         self._validate_observation_id(observation_id)
         return self.observation_repo.find_by_observation_id(observation_id)
+
+    def find_observation_by_inspection_id(
+        self, inspection_id: int
+    ) -> Observation | None:
+        self._validate_inspection_id(inspection_id)
+        return self.observation_repo.find_by_inspection_id(inspection_id)

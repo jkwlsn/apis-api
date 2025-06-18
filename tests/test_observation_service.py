@@ -227,3 +227,50 @@ def test_can_not_find_observation_by_invalid_observation_id(
 
     with pytest.raises(ValueError, match="Invalid observation_id"):
         observation_service.find_observation_by_observation_id(observation_id)
+
+
+def test_find_observation_by_inspection_id(
+    observation_repo: MagicMock,
+    inspection_repo: MagicMock,
+    test_data: Observation,
+) -> None:
+    inspection_id = 1
+    observation_repo.find_by_inspection_id.return_value = test_data
+    observation_service: ObservationService = ObservationService(
+        observation_repo, inspection_repo
+    )
+
+    results: Observation | None = observation_service.find_observation_by_inspection_id(
+        inspection_id=inspection_id
+    )
+
+    assert results.inspection_id == test_data.inspection_id
+
+
+def test_can_not_find_observation_by_missing_inspection_id(
+    observation_repo: MagicMock, inspection_repo: MagicMock
+) -> None:
+    inspection_id = 999
+    observation_repo.find_by_inspection_id.return_value = None
+    observation_service: ObservationService = ObservationService(
+        observation_repo, inspection_repo
+    )
+
+    results: Observation | None = observation_service.find_observation_by_inspection_id(
+        inspection_id=inspection_id
+    )
+
+    assert results is None
+
+
+def test_can_not_find_observation_by_invalid_inspection_id(
+    observation_repo: MagicMock, inspection_repo: MagicMock
+) -> None:
+    inspection_id = -1
+    observation_repo.find_by_inspection_id.return_value = None
+    observation_service: ObservationService = ObservationService(
+        observation_repo, inspection_repo
+    )
+
+    with pytest.raises(ValueError, match="Invalid inspection_id"):
+        observation_service.find_observation_by_inspection_id(inspection_id)

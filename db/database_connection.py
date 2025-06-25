@@ -42,6 +42,7 @@ class DatabaseConnection:
                 self._build_connection_string(),
                 row_factory=dict_row,
             )
+            self.connection.autocommit = True
         except psycopg.OperationalError as e:
             error_message = (
                 f"Couldn't connect to {self.host}:{self.port}/{self.dbname}: {e}"

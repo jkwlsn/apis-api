@@ -178,11 +178,11 @@ def test_can_update_valid_user(
     ]
     repo = UserRepository(mock_db)
 
-    result = repo.update(1, "UPDATED", "secure_pass")
+    result = repo.update(1, "UPDATED", "password")
 
     mock_db.execute.assert_called_once_with(
         "UPDATE users SET username = %s, password = %s WHERE user_id = %s RETURNING user_id;",
-        ["UPDATED", "secure_pass", 1],
+        ["UPDATED", "password", 1],
     )
     assert isinstance(result, User)
     assert result.user_id == test_case.user_id
@@ -194,10 +194,10 @@ def test_can_not_update_invalid_user(mock_db: MagicMock) -> None:
     """Respository CAN NOT UPDATE an invalid user in the database"""
     mock_db.execute.return_value = []
     repo = UserRepository(mock_db)
-    result = repo.update(999, "BAD UPDATE", "secure_pass")
+    result = repo.update(999, "BAD UPDATE", "password")
     mock_db.execute.assert_called_once_with(
         "UPDATE users SET username = %s, password = %s WHERE user_id = %s RETURNING user_id;",
-        ["BAD UPDATE", "secure_pass", 999],
+        ["BAD UPDATE", "password", 999],
     )
     assert result is None
 

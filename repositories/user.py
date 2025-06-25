@@ -68,8 +68,8 @@ class UserRepository:
         if results:
             return User(
                 user_id=results[0]["user_id"],
-                username=results[0]["username"],
-                password=results[0]["password"],
+                username=username,
+                password=password,
             )
         return None
 

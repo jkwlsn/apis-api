@@ -53,8 +53,9 @@ class TestDatabaseConnection:
         db = DatabaseConnection()
         db.connect()
         db.seed("seeds/valid_test_data.sql")
-        results = db.execute("SELECT * FROM test_seed_data;", [])
+        results = db.execute("SELECT * FROM test_seed_data WHERE id = 1;", [])
         assert results == [{"id": 1, "name": "jake"}]
+        db.execute("TRUNCATE TABLE test_seed_data;", [])
 
 
 if __name__ == "__main__":

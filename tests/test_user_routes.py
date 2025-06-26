@@ -189,3 +189,49 @@ class TestUserRoutes:
 
         assert response.status_code == 404
         assert response.json()["detail"] == "User not found"
+
+    def test_can_update_existing_user(self, mock_user_service: UserService) -> None:
+        updated_user: UserRead = UserRead(
+            user_id=1, username="updateduser", password="newpassword123"
+        )
+        mock_user_service.update_user = MagicMock(return_value=updated_user)
+        mock_user_service.find_user_by_user_id = MagicMock(return_value=updated_user)
+
+        response = client.post(
+            "/users/id/1",
+            json={"username": "updateduser", "password": "newpassword123"},
+        )
+
+        assert response.status_code == 200
+        assert response.json() == updated_user.model_dump()
+        mock_user_service.update_user.assert_called_once_with(
+            user_id=1, username="updateduser", password="newpassword123"
+        )
+
+    def test_can_not_update_user_with_invalid_data(
+        self, mock_user_service: UserService
+    ) -> None:
+        mock_user_service.update_user = MagicMock(
+            side_effect=ValueError("Invalid update")
+        )
+
+        response = client.post(
+            "/users/id/1",
+            json={"username": "bad!", "password": "123"},
+        )
+
+        assert response.status_code == 400
+        assert response.json()["detail"] == "Invalid update"
+
+    def test_can_not_update_nonexistent_user(
+        self, mock_user_service: UserService
+    ) -> None:
+        mock_user_service.update_user = MagicMock(return_value=None)
+
+        response = client.post(
+            "/users/id/999",
+            json={"username": "ghostuser", "password": "ghostpassword123"},
+        )
+
+        assert response.status_code == 404
+        assert response.json()["detail"] == "Update failed: does user exist?"

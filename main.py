@@ -6,6 +6,7 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 
 from db.database_connection import DatabaseConnection
+from routes.apiary import router as apiary_router
 from routes.user import router as user_router
 
 db = DatabaseConnection()
@@ -23,3 +24,4 @@ app = FastAPI()
 app.router.lifespan_context = lifespan
 
 app.include_router(user_router)
+app.include_router(apiary_router)

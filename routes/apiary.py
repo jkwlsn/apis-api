@@ -36,3 +36,15 @@ def list_user_apiaries(
     if not apiaries:
         raise HTTPException(status_code=404, detail="No apiaries found for this user")
     return apiaries
+
+
+@router.get("/apiaries/{apiary_id}")
+def get_apiary(
+    *,
+    apiary_id: int,
+    service: Annotated[ApiaryService, Depends(get_apiary_service)],
+) -> ApiaryRead:
+    apiaries = service.find_apiary_by_apiary_id(apiary_id=apiary_id)
+    if not apiaries:
+        raise HTTPException(status_code=404, detail="Apiary not found")
+    return apiaries

@@ -37,3 +37,137 @@ class TestApiaryRoutes:
 
         assert service is not None
         assert isinstance(service, ApiaryService)
+
+    def test_create_apiary_success(self, mock_apiary_service: MagicMock) -> None:
+        mock_apiary_service.create_apiary = MagicMock(return_value=self.valid_apiary)
+
+        response = client.post(
+            "/users/1/apiaries",
+            json={"name": "Happy Bees", "location": "Kent"},
+        )
+
+        assert response.status_code == 200
+        assert response.json() == self.valid_apiary.model_dump()
+        mock_apiary_service.create_apiary.assert_called_once_with(
+            name="Happy Bees", location="Kent", user_id=1
+        )
+
+    def test_create_apiary_missing_name(self, mock_apiary_service: MagicMock) -> None:
+        mock_apiary_service.create_apiary.side_effect = ValueError(
+            "Apiary name is required"
+        )
+
+        response = client.post(
+            "/users/1/apiaries",
+            json={"name": "   ", "location": "Kent"},
+        )
+
+        assert response.status_code in {400, 422}
+        assert "Apiary name is required" in response.json()["detail"]
+
+    def test_create_apiary_invalid_user(self, mock_apiary_service: MagicMock) -> None:
+        mock_apiary_service.create_apiary.side_effect = ValueError("Invalid user_id")
+
+        response = client.post(
+            "/users/999/apiaries",
+            json={"name": "Happy Bees", "location": "Kent"},
+        )
+
+        assert response.status_code in {400, 422}
+        assert response.json()["detail"] == "Invalid user_id"
+
+    def test_list_apiaries_by_user_success(
+        self, mock_apiary_service: ApiaryService
+    ) -> None:
+        second_apiary = ApiaryRead(
+            apiary_id=2, name="Golden Hives", location="Sussex", user_id=1
+        )
+        mock_apiary_service.find_apiaries_by_user_id = MagicMock(
+            return_value=[
+                self.valid_apiary,
+                second_apiary,
+            ]
+        )
+
+        response = client.get("/users/1/apiaries")
+
+        assert response.status_code == 200
+        assert response.json() == [
+            self.valid_apiary.model_dump(),
+            second_apiary.model_dump(),
+        ]
+        mock_apiary_service.find_apiaries_by_user_id.assert_called_once_with(user_id=1)
+
+    def test_list_apiaries_by_user_not_found(
+        self, mock_apiary_service: MagicMock
+    ) -> None:
+        mock_apiary_service.find_apiaries_by_user_id.return_value = None
+
+        response = client.get("/users/999/apiaries")
+
+        assert response.status_code == 404
+        assert response.json()["detail"] == "No apiaries found for this user"
+
+    def test_get_apiary_by_id_success(self, mock_apiary_service: MagicMock) -> None:
+        mock_apiary_service.find_apiary_by_apiary_id.return_value = self.valid_apiary
+
+        response = client.get("/apiaries/1")
+
+        assert response.status_code == 200
+        assert response.json() == self.valid_apiary.model_dump()
+        mock_apiary_service.find_apiary_by_apiary_id.assert_called_once_with(
+            apiary_id=1
+        )
+
+    def test_get_apiary_by_id_not_found(self, mock_apiary_service: MagicMock) -> None:
+        mock_apiary_service.find_apiary_by_apiary_id.return_value = None
+
+        response = client.get("/apiaries/999")
+
+        assert response.status_code == 404
+        assert response.json()["detail"] == "Apiary not found"
+
+    def test_update_apiary_success(self, mock_apiary_service: MagicMock) -> None:
+        updated = ApiaryRead(
+            apiary_id=1, name="Buzz Nest", location="London", user_id=1
+        )
+        mock_apiary_service.update_apiary.return_value = updated
+
+        response = client.post(
+            "/apiaries/1",
+            json={"name": "Buzz Nest", "location": "London", "user_id": 1},
+        )
+
+        assert response.status_code == 200
+        assert response.json() == updated.model_dump()
+        mock_apiary_service.update_apiary.assert_called_once_with(
+            apiary_id=1, name="Buzz Nest", location="London", user_id=1
+        )
+
+    def test_update_apiary_invalid_id(self, mock_apiary_service: MagicMock) -> None:
+        mock_apiary_service.update_apiary.side_effect = ValueError("Invalid apiary_id")
+
+        response = client.post(
+            "/apiaries/999",
+            json={"name": "Buzz Hive", "location": "Nowhere", "user_id": 1},
+        )
+
+        assert response.status_code == 400
+        assert response.json()["detail"] == "Invalid apiary_id"
+
+    def test_delete_apiary_success(self, mock_apiary_service: MagicMock) -> None:
+        mock_apiary_service.delete_apiary.return_value = True
+
+        response = client.delete("/apiaries/1")
+
+        assert response.status_code == 200
+        assert response.json() is True
+        mock_apiary_service.delete_apiary.assert_called_once_with(apiary_id=1)
+
+    def test_delete_apiary_not_found(self, mock_apiary_service: MagicMock) -> None:
+        mock_apiary_service.delete_apiary.side_effect = ValueError("Invalid apiary_id")
+
+        response = client.delete("/apiaries/999")
+
+        assert response.status_code == 404
+        assert response.json()["detail"] == "Invalid apiary_id"

@@ -49,3 +49,20 @@ def get_user_by_id(
     if user is None:
         raise HTTPException(status_code=404, detail="User not found")
     return user
+
+
+@router.post("/id/{user_id}")
+def update_user(
+    user_id: int,
+    user: UserCreate,
+    service: Annotated[UserService, Depends(get_user_service)],
+) -> UserRead:
+    try:
+        updated_user = service.update_user(
+            user_id=user_id, username=user.username, password=user.password
+        )
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e)) from e
+    if updated_user is None:
+        raise HTTPException(status_code=404, detail="Update failed: does user exist?")
+    return updated_user

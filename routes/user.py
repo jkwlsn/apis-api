@@ -38,3 +38,14 @@ def get_user_by_username(
     if user is None:
         raise HTTPException(status_code=404, detail="User not found")
     return user
+
+
+@router.get("/id/{user_id}")
+def get_user_by_id(
+    user_id: int,
+    service: Annotated[UserService, Depends(get_user_service)],
+) -> UserRead:
+    user = service.find_user_by_user_id(user_id=user_id)
+    if user is None:
+        raise HTTPException(status_code=404, detail="User not found")
+    return user

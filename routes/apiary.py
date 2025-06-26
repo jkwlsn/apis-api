@@ -48,3 +48,21 @@ def get_apiary(
     if not apiaries:
         raise HTTPException(status_code=404, detail="Apiary not found")
     return apiaries
+
+
+@router.post("/apiaries/{apiary_id}")
+def update_apiary(
+    *,
+    apiary_id: int,
+    payload: ApiaryUpdate,
+    service: Annotated[ApiaryService, Depends(get_apiary_service)],
+) -> ApiaryRead:
+    try:
+        return service.update_apiary(
+            apiary_id=apiary_id,
+            name=payload.name,
+            location=payload.location,
+            user_id=payload.user_id,
+        )
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e)) from e

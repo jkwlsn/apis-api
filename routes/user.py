@@ -28,3 +28,13 @@ def create_user(
     if created_user is None:
         raise HTTPException(status_code=400, detail="Failed to create user") from None
     return created_user
+
+
+@router.get("/username/{username}")
+def get_user_by_username(
+    username: str, service: Annotated[UserService, Depends(get_user_service)]
+) -> UserRead:
+    user = service.find_user_by_username(username=username)
+    if user is None:
+        raise HTTPException(status_code=404, detail="User not found")
+    return user

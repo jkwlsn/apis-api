@@ -107,3 +107,22 @@ class TestApiaryRoutes:
 
         assert response.status_code == 404
         assert response.json()["detail"] == "No apiaries found for this user"
+
+    def test_get_apiary_by_id_success(self, mock_apiary_service: MagicMock) -> None:
+        mock_apiary_service.find_apiary_by_apiary_id.return_value = self.valid_apiary
+
+        response = client.get("/apiaries/1")
+
+        assert response.status_code == 200
+        assert response.json() == self.valid_apiary.model_dump()
+        mock_apiary_service.find_apiary_by_apiary_id.assert_called_once_with(
+            apiary_id=1
+        )
+
+    def test_get_apiary_by_id_not_found(self, mock_apiary_service: MagicMock) -> None:
+        mock_apiary_service.find_apiary_by_apiary_id.return_value = None
+
+        response = client.get("/apiaries/999")
+
+        assert response.status_code == 404
+        assert response.json()["detail"] == "Apiary not found"

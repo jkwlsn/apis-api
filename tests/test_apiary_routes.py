@@ -37,3 +37,41 @@ class TestApiaryRoutes:
 
         assert service is not None
         assert isinstance(service, ApiaryService)
+
+    def test_create_apiary_success(self, mock_apiary_service: MagicMock) -> None:
+        mock_apiary_service.create_apiary = MagicMock(return_value=self.valid_apiary)
+
+        response = client.post(
+            "/users/1/apiaries",
+            json={"name": "Happy Bees", "location": "Kent"},
+        )
+
+        assert response.status_code == 200
+        assert response.json() == self.valid_apiary.model_dump()
+        mock_apiary_service.create_apiary.assert_called_once_with(
+            name="Happy Bees", location="Kent", user_id=1
+        )
+
+    def test_create_apiary_missing_name(self, mock_apiary_service: MagicMock) -> None:
+        mock_apiary_service.create_apiary.side_effect = ValueError(
+            "Apiary name is required"
+        )
+
+        response = client.post(
+            "/users/1/apiaries",
+            json={"name": "   ", "location": "Kent"},
+        )
+
+        assert response.status_code in {400, 422}
+        assert "Apiary name is required" in response.json()["detail"]
+
+    def test_create_apiary_invalid_user(self, mock_apiary_service: MagicMock) -> None:
+        mock_apiary_service.create_apiary.side_effect = ValueError("Invalid user_id")
+
+        response = client.post(
+            "/users/999/apiaries",
+            json={"name": "Happy Bees", "location": "Kent"},
+        )
+
+        assert response.status_code in {400, 422}
+        assert response.json()["detail"] == "Invalid user_id"

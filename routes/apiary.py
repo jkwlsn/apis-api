@@ -66,3 +66,14 @@ def update_apiary(
         )
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e)) from e
+
+
+@router.delete("/apiaries/{apiary_id}")
+def delete_apiary(
+    apiary_id: int,
+    service: Annotated[ApiaryService, Depends(get_apiary_service)],
+) -> bool:
+    try:
+        return service.delete_apiary(apiary_id=apiary_id)
+    except ValueError as e:
+        raise HTTPException(status_code=404, detail=str(e)) from e

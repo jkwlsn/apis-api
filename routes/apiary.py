@@ -24,3 +24,15 @@ def create_apiary(
         )
     except ValueError as e:
         raise HTTPException(status_code=422, detail=str(e)) from e
+
+
+@router.get("/users/{user_id}/apiaries")
+def list_user_apiaries(
+    *,
+    user_id: int,
+    service: Annotated[ApiaryService, Depends(get_apiary_service)],
+) -> list[ApiaryRead]:
+    apiaries = service.find_apiaries_by_user_id(user_id=user_id)
+    if not apiaries:
+        raise HTTPException(status_code=404, detail="No apiaries found for this user")
+    return apiaries

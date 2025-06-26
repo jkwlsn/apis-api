@@ -235,3 +235,22 @@ class TestUserRoutes:
 
         assert response.status_code == 404
         assert response.json()["detail"] == "Update failed: does user exist?"
+
+    def test_can_delete_existing_user(self, mock_user_service: UserService) -> None:
+        mock_user_service.delete_user = MagicMock(return_value=True)
+
+        response = client.delete("/users/id/1")
+
+        assert response.status_code == 200
+        assert response.json() is True
+        mock_user_service.delete_user.assert_called_once_with(user_id=1)
+
+    def test_can_not_delete_nonexistent_user(
+        self, mock_user_service: UserService
+    ) -> None:
+        mock_user_service.delete_user = MagicMock(return_value=False)
+
+        response = client.delete("/users/id/999")
+
+        assert response.status_code == 404
+        assert response.json()["detail"] == "User not found"

@@ -9,11 +9,10 @@ from schemas.apiary import ApiaryCreate, ApiaryRead
 class TestApiarySchema:
     def test_apiary_create_valid(self) -> None:
         """Creates a valid apiary"""
-        test_data = {"name": "Happy Bee Co.", "location": "Kent", "user_id": 1}
+        test_data = {"name": "Happy Bee Co.", "location": "Kent"}
         apiary = ApiaryCreate(**test_data)
         assert apiary.name == "Happy Bee Co."
         assert apiary.location == "Kent"
-        assert apiary.user_id == 1
 
     def test_apiary_create_missing_field(self) -> None:
         """Fail as no password provided"""

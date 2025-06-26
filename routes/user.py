@@ -66,3 +66,14 @@ def update_user(
     if updated_user is None:
         raise HTTPException(status_code=404, detail="Update failed: does user exist?")
     return updated_user
+
+
+@router.delete("/id/{user_id}")
+def delete_user(
+    user_id: int,
+    service: Annotated[UserService, Depends(get_user_service)],
+) -> bool:
+    deleted = service.delete_user(user_id=user_id)
+    if not deleted:
+        raise HTTPException(status_code=404, detail="User not found")
+    return deleted

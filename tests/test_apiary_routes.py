@@ -126,3 +126,31 @@ class TestApiaryRoutes:
 
         assert response.status_code == 404
         assert response.json()["detail"] == "Apiary not found"
+
+    def test_update_apiary_success(self, mock_apiary_service: MagicMock) -> None:
+        updated = ApiaryRead(
+            apiary_id=1, name="Buzz Nest", location="London", user_id=1
+        )
+        mock_apiary_service.update_apiary.return_value = updated
+
+        response = client.post(
+            "/apiaries/1",
+            json={"name": "Buzz Nest", "location": "London", "user_id": 1},
+        )
+
+        assert response.status_code == 200
+        assert response.json() == updated.model_dump()
+        mock_apiary_service.update_apiary.assert_called_once_with(
+            apiary_id=1, name="Buzz Nest", location="London", user_id=1
+        )
+
+    def test_update_apiary_invalid_id(self, mock_apiary_service: MagicMock) -> None:
+        mock_apiary_service.update_apiary.side_effect = ValueError("Invalid apiary_id")
+
+        response = client.post(
+            "/apiaries/999",
+            json={"name": "Buzz Hive", "location": "Nowhere", "user_id": 1},
+        )
+
+        assert response.status_code == 400
+        assert response.json()["detail"] == "Invalid apiary_id"

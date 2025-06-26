@@ -143,3 +143,28 @@ class TestUserRoutes:
             json={"username": "validuser", "password": "short"},
         )
         assert response.status_code == 422
+
+    def test_can_find_user_by_valid_username(
+        self, mock_user_service: UserService
+    ) -> None:
+        mock_user_service.find_user_by_username = MagicMock(
+            return_value=self.valid_user
+        )
+
+        response = client.get("/users/username/validuser")
+
+        assert response.status_code == 200
+        assert response.json() == self.valid_user.model_dump()
+        mock_user_service.find_user_by_username.assert_called_once_with(
+            username="validuser"
+        )
+
+    def test_can_not_find_user_by_invalid_username(
+        self, mock_user_service: UserService
+    ) -> None:
+        mock_user_service.find_user_by_username = MagicMock(return_value=None)
+
+        response = client.get("/users/username/ghostuser")
+
+        assert response.status_code == 404
+        assert response.json()["detail"] == "User not found"

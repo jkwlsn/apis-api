@@ -154,3 +154,20 @@ class TestApiaryRoutes:
 
         assert response.status_code == 400
         assert response.json()["detail"] == "Invalid apiary_id"
+
+    def test_delete_apiary_success(self, mock_apiary_service: MagicMock) -> None:
+        mock_apiary_service.delete_apiary.return_value = True
+
+        response = client.delete("/apiaries/1")
+
+        assert response.status_code == 200
+        assert response.json() is True
+        mock_apiary_service.delete_apiary.assert_called_once_with(apiary_id=1)
+
+    def test_delete_apiary_not_found(self, mock_apiary_service: MagicMock) -> None:
+        mock_apiary_service.delete_apiary.side_effect = ValueError("Invalid apiary_id")
+
+        response = client.delete("/apiaries/999")
+
+        assert response.status_code == 404
+        assert response.json()["detail"] == "Invalid apiary_id"

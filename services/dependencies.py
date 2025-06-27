@@ -2,8 +2,10 @@
 
 from db.database_connection import DatabaseConnection
 from repositories.apiary import ApiaryRepository
+from repositories.hive import HiveRepository
 from repositories.user import UserRepository
 from services.apiary import ApiaryService
+from services.hive import HiveService
 from services.user import UserService
 
 
@@ -18,3 +20,10 @@ def get_apiary_service() -> ApiaryService:
     user_repo = UserRepository(db)
     apiary_repo = ApiaryRepository(db)
     return ApiaryService(apiary_repo=apiary_repo, user_repo=user_repo)
+
+
+def get_hive_service() -> HiveService:
+    db = DatabaseConnection()
+    apiary_repo = ApiaryRepository(db)
+    hive_repo = HiveRepository(db)
+    return HiveService(hive_repo=hive_repo, apiary_repo=apiary_repo)

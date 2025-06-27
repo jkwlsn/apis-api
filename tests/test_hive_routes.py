@@ -57,3 +57,28 @@ class TestHiveRoutes:
 
         assert response.status_code in {400, 422}
         assert response.json()["detail"] == "Hive name is required"
+
+    def test_list_hives_success(self, mock_hive_service: MagicMock) -> None:
+        mock_hive_service.find_hives_by_apiary_id = MagicMock(
+            return_value=[self.valid_hive]
+        )
+
+        response = client.get("/apiaries/1/hives")
+
+        assert response.status_code == 200
+        assert response.json() == [
+            {
+                "hive_id": self.valid_hive.hive_id,
+                "name": self.valid_hive.name,
+                "apiary_id": self.valid_hive.apiary_id,
+            }
+        ]
+        mock_hive_service.find_hives_by_apiary_id.assert_called_once_with(apiary_id=1)
+
+    def test_list_hives_not_found(self, mock_hive_service: MagicMock) -> None:
+        mock_hive_service.find_hives_by_apiary_id.return_value = []
+
+        response = client.get("/apiaries/1/hives")
+
+        assert response.status_code == 404
+        assert response.json()["detail"] == "No hives found for this apiary"

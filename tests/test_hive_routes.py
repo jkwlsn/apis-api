@@ -127,3 +127,20 @@ class TestHiveRoutes:
 
         assert response.status_code == 400
         assert response.json()["detail"] == "Hive name is required"
+
+    def test_delete_hive_success(self, mock_hive_service: MagicMock) -> None:
+        mock_hive_service.delete_hive.return_value = True
+
+        response = client.delete("/apiaries/1/hives/1")
+
+        assert response.status_code == 200
+        assert response.json() is True
+        mock_hive_service.delete_hive.assert_called_once_with(hive_id=1)
+
+    def test_delete_hive_not_found(self, mock_hive_service: MagicMock) -> None:
+        mock_hive_service.delete_hive.side_effect = ValueError("Invalid hive_id")
+
+        response = client.delete("/apiaries/1/hives/999")
+
+        assert response.status_code == 404
+        assert response.json()["detail"] == "Invalid hive_id"

@@ -46,3 +46,21 @@ def get_hive(
     if not hives:
         raise HTTPException(status_code=404, detail="Hive not found")
     return hives
+
+
+@router.post("/apiaries/{apiary_id}/hives/{hive_id}")
+def update_hive(
+    *,
+    apiary_id: int,
+    hive_id: int,
+    payload: HiveUpdate,
+    service: Annotated[HiveService, Depends(get_hive_service)],
+) -> HiveRead:
+    try:
+        return service.update_hive(
+            hive_id=hive_id,
+            name=payload.name,
+            apiary_id=apiary_id,
+        )
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e)) from e

@@ -12,13 +12,12 @@ class TestHiveSchema:
         test_data = {"name": "Hive 1", "apiary_id": 1}
         hive = HiveCreate(**test_data)
         assert hive.name == "Hive 1"
-        assert hive.apiary_id == 1
 
     def test_hive_create_missing_field(self) -> None:
-        """Fail as no apiary_id provided"""
+        """Fail as no name provided"""
         with pytest.raises(ValidationError) as exc_info:
-            HiveCreate(name="Hive1")
-        assert "validation" in str(exc_info.value)
+            HiveCreate()  # No 'name' provided
+        assert "name" in str(exc_info.value)
 
     def test_hive_read_valid(self) -> None:
         """Reads valid hive"""

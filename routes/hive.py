@@ -34,3 +34,15 @@ def list_apiary_hives(
     if not hives:
         raise HTTPException(status_code=404, detail="No hives found for this apiary")
     return hives
+
+
+@router.get("/apiaries/{apiary_id}/hives/{hive_id}")
+def get_hive(
+    *,
+    hive_id: int,
+    service: Annotated[HiveService, Depends(get_hive_service)],
+) -> HiveRead:
+    hives = service.find_hive_by_hive_id(hive_id=hive_id)
+    if not hives:
+        raise HTTPException(status_code=404, detail="Hive not found")
+    return hives

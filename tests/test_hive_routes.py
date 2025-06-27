@@ -34,3 +34,26 @@ class TestHiveRoutes:
         service: HiveService = get_hive_service()
         assert service is not None
         assert isinstance(service, HiveService)
+
+    def test_create_hive_success(self, mock_hive_service: MagicMock) -> None:
+        mock_hive_service.create_hive = MagicMock(return_value=self.valid_hive)
+
+        response = client.post("/apiaries/1/hives", json={"name": "Test Hive"})
+
+        assert response.status_code == 200
+        assert response.json() == {
+            "hive_id": self.valid_hive.hive_id,
+            "name": self.valid_hive.name,
+            "apiary_id": self.valid_hive.apiary_id,
+        }
+        mock_hive_service.create_hive.assert_called_once_with(
+            name="Test Hive", apiary_id=1
+        )
+
+    def test_create_hive_validation_error(self, mock_hive_service: MagicMock) -> None:
+        mock_hive_service.create_hive.side_effect = ValueError("Hive name is required")
+
+        response = client.post("/apiaries/1/hives", json={"name": ""})
+
+        assert response.status_code in {400, 422}
+        assert response.json()["detail"] == "Hive name is required"

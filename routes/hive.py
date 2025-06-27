@@ -22,3 +22,15 @@ def create_hive(
         return service.create_hive(name=payload.name, apiary_id=apiary_id)
     except ValueError as e:
         raise HTTPException(status_code=422, detail=str(e)) from e
+
+
+@router.get("/apiaries/{apiary_id}/hives")
+def list_apiary_hives(
+    *,
+    apiary_id: int,
+    service: Annotated[HiveService, Depends(get_hive_service)],
+) -> list[HiveRead]:
+    hives = service.find_hives_by_apiary_id(apiary_id=apiary_id)
+    if not hives:
+        raise HTTPException(status_code=404, detail="No hives found for this apiary")
+    return hives

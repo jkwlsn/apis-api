@@ -64,3 +64,14 @@ def update_hive(
         )
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e)) from e
+
+
+@router.delete("/apiaries/{apiary_id}/hives/{hive_id}")
+def delete_hive(
+    hive_id: int,
+    service: Annotated[HiveService, Depends(get_hive_service)],
+) -> bool:
+    try:
+        return service.delete_hive(hive_id=hive_id)
+    except ValueError as e:
+        raise HTTPException(status_code=404, detail=str(e)) from e

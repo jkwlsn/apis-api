@@ -33,3 +33,15 @@ def get_colony_by_hive_id(
     if not colony:
         raise HTTPException(status_code=404, detail="No colonies found for this hive")
     return colony
+
+
+@router.get("/colony/{colony_id}")
+def get_colony_by_colony_id(
+    *,
+    colony_id: int,
+    service: Annotated[ColonyService, Depends(get_colony_service)],
+) -> ColonyRead:
+    colony = service.find_colony_by_colony_id(colony_id=colony_id)
+    if not colony:
+        raise HTTPException(status_code=404, detail="No colonies found for this hive")
+    return colony

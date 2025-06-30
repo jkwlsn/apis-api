@@ -21,3 +21,15 @@ def create_colony(
         return service.create_colony(hive_id=payload.hive_id)
     except ValueError as e:
         raise HTTPException(status_code=422, detail=str(e)) from e
+
+
+@router.get("/hives/{hive_id}/colony")
+def get_colony_by_hive_id(
+    *,
+    hive_id: int,
+    service: Annotated[ColonyService, Depends(get_colony_service)],
+) -> list[ColonyRead]:
+    colony = service.find_colony_by_hive_id(hive_id=hive_id)
+    if not colony:
+        raise HTTPException(status_code=404, detail="No colonies found for this hive")
+    return colony

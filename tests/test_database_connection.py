@@ -1,62 +1,82 @@
-"""Test connection to the postgres database"""
+"""Integration tests for PostgreSQL database connection."""
+
+from collections.abc import Generator
 
 import pytest
 
+from db.database_configuration import DatabaseConfiguration
 from db.database_connection import DatabaseConnection
 
 
-class TestDatabaseConnection:
-    def test_invalid_connection_configuration(self) -> None:
-        db = DatabaseConnection(host="invalid")
-        with pytest.raises(ConnectionError) as e:
-            db.connect()
-        assert (
-            str(e.value)
-            == """Couldn't connect to invalid:5432/apis_database: [Errno -2] Name or service not known"""
-        )
+@pytest.fixture(scope="module")
+def db() -> Generator[DatabaseConnection, None, None]:
+    """Provides a connected DatabaseConnection instance for tests."""
+    config: DatabaseConfiguration = DatabaseConfiguration(".env")
+    db: DatabaseConnection = DatabaseConnection(config)
+    db.connect()
+    yield db
+    db.close()
 
-    def test_valid_connection_configuration(self) -> None:
-        db = DatabaseConnection()
+
+def test_valid_connection_configuration(db: DatabaseConnection) -> None:
+    assert db.connection is not None
+    assert db.connection.closed is False
+
+
+def test_valid_seed_data(db: DatabaseConnection) -> None:
+    """Seed the database and verify data is inserted."""
+    db.seed("seeds/valid_test_data.sql")
+    results: list[dict] = db.execute("SELECT * FROM test_seed_data WHERE id = 1;", [])
+    assert results == [{"id": 1, "name": "jake"}]
+    db.execute("TRUNCATE TABLE test_seed_data RESTART IDENTITY CASCADE;", [])
+
+
+def test_invalid_seed_filename(db: DatabaseConnection) -> None:
+    """Seeding with a missing file should raise FileNotFoundError."""
+    with pytest.raises(FileNotFoundError) as excinfo:
+        db.seed("seeds/nonexistent_seed.sql")
+    assert "does not exist" in str(excinfo.value)
+
+
+def test_close_connection(db: DatabaseConnection) -> None:
+    """Closing the connection should set connection.closed to True."""
+    assert db.connection.closed is False
+    db.close()
+    assert db.connection.closed is True
+
+
+def test_invalid_connection_configuration() -> None:
+    """Connecting with invalid credentials should raise ConnectionError."""
+    config: DatabaseConfiguration = DatabaseConfiguration()
+    config.host = "invalid_host"
+    config.port = "5432"
+    config.dbname = "nonexistent_db"
+    config.user = "invalid_user"
+    config.password = "invalid_password"
+    config.url = (
+        f"host={config.host} port={config.port} "
+        f"user={config.user} password={config.password} dbname={config.dbname}"
+    )
+
+    db: DatabaseConnection = DatabaseConnection(config)
+    with pytest.raises(ConnectionError) as excinfo:
         db.connect()
-        assert db.connection.closed is False
+    assert "Couldn't connect" in str(excinfo.value)
 
-    def test_close_connection(self) -> None:
-        db = DatabaseConnection()
-        db.connect()
-        assert db.connection.closed is False
-        db.close()
-        assert db.connection.closed is True
 
-    def test_invalid_execute(self) -> None:
-        db = DatabaseConnection()
-        with pytest.raises(ConnectionError) as e:
-            db.execute("SELECT * FROM users;", [])
-        assert str(e.value) == "No connection to localhost:5432/apis_database"
+def test_execute_without_connection() -> None:
+    """Executing without connecting should raise ConnectionError."""
+    config: DatabaseConfiguration = DatabaseConfiguration(".env")
+    db: DatabaseConnection = DatabaseConnection(config)
+    with pytest.raises(ConnectionError) as excinfo:
+        db.execute("SELECT 1;", [])
+    assert "No connection to" in str(excinfo.value)
 
-    def test_invalid_seed_filename(self) -> None:
-        db = DatabaseConnection()
-        db.connect()
-        with pytest.raises(FileNotFoundError, match="invalid_test_filename") as e:
-            db.seed("invalid_test_filename")
-        assert (
-            str(e.value)
-            == "invalid_test_filename does not exist: [Errno 2] No such file or directory: 'invalid_test_filename'"
-        )
 
-    def test_invalid_connection_seed(self) -> None:
-        db = DatabaseConnection()
-        with pytest.raises(ConnectionError) as e:
-            db.seed("seeds/valid_test_data.sql")
-        assert str(e.value) == "No connection to localhost:5432/apis_database"
-
-    def test_valid_seed_data(self) -> None:
-        db = DatabaseConnection()
-        db.connect()
+def test_seed_without_connection() -> None:
+    """Seeding without connecting should raise ConnectionError."""
+    config: DatabaseConfiguration = DatabaseConfiguration(".env")
+    db: DatabaseConnection = DatabaseConnection(config)
+    with pytest.raises(ConnectionError) as excinfo:
         db.seed("seeds/valid_test_data.sql")
-        results = db.execute("SELECT * FROM test_seed_data WHERE id = 1;", [])
-        assert results == [{"id": 1, "name": "jake"}]
-        db.execute("TRUNCATE TABLE test_seed_data;", [])
-
-
-if __name__ == "__main__":
-    pytest.main()
+    assert "No connection to" in str(excinfo.value)

@@ -126,6 +126,13 @@ class TestColonyRoutes:
             colony_id=1, hive_id=2
         )
 
+    def test_update_colony_failure(self, mock_colony_service: MagicMock) -> None:
+        mock_colony_service.update_colony.side_effect = ValueError()
+
+        response = client.post("/colony/1", json={"hive_id": "-999"})
+
+        assert response.status_code == 400
+
     def test_delete_colony_success(self, mock_colony_service: MagicMock) -> None:
         mock_colony_service.delete_colony.return_value = True
 

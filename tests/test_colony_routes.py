@@ -48,9 +48,9 @@ class TestColonyRoutes:
         mock_colony_service.create_colony.assert_called_once_with(hive_id=1)
 
     def test_create_colony_failure(self, mock_colony_service: MagicMock) -> None:
-        mock_colony_service.create_colony = MagicMock(return_value=self.valid_colony)
+        mock_colony_service.create_colony.side_effect = ValueError()
 
-        response = client.post("/colony")
+        response = client.post("/colony", json={"hive_id": "-1"})
 
         assert response.status_code == 422
 

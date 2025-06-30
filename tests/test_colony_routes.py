@@ -125,3 +125,20 @@ class TestColonyRoutes:
         mock_colony_service.update_colony.assert_called_once_with(
             colony_id=1, hive_id=2
         )
+
+    def test_delete_colony_success(self, mock_colony_service: MagicMock) -> None:
+        mock_colony_service.delete_colony.return_value = True
+
+        response = client.delete("/colony/1")
+
+        assert response.status_code == 200
+        assert response.json() is True
+        mock_colony_service.delete_colony.assert_called_once_with(colony_id=1)
+
+    def test_delete_colony_not_found(self, mock_colony_service: MagicMock) -> None:
+        mock_colony_service.delete_colony.side_effect = ValueError("Invalid colony_id")
+
+        response = client.delete("/colony/999")
+
+        assert response.status_code == 404
+        assert response.json()["detail"] == "Invalid colony_id"

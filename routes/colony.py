@@ -45,3 +45,19 @@ def get_colony_by_colony_id(
     if not colony:
         raise HTTPException(status_code=404, detail="No colonies found for this hive")
     return colony
+
+
+@router.post("/colony/{colony_id}")
+def update_colony(
+    *,
+    colony_id: int,
+    payload: ColonyUpdate,
+    service: Annotated[ColonyService, Depends(get_colony_service)],
+) -> ColonyRead:
+    try:
+        return service.update_colony(
+            colony_id=colony_id,
+            hive_id=payload.hive_id,
+        )
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e)) from e

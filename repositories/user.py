@@ -1,13 +1,14 @@
 """User repository"""
 
 from db.database_connection import DatabaseConnection
+from db.instance import db
 from models.user import User
 
 
 class UserRepository:
     """Controls the interaction between models.User and the database"""
 
-    def __init__(self, db: DatabaseConnection) -> None:
+    def __init__(self, db: DatabaseConnection = db) -> None:
         """Init with a database connection"""
         self.db = db
 

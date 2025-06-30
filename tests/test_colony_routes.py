@@ -82,3 +82,31 @@ class TestColonyRoutes:
 
         assert response.status_code == 404
         assert response.json()["detail"] == "No colonies found for this hive"
+
+    def test_get_colony_by_colony_id_success(
+        self, mock_colony_service: MagicMock
+    ) -> None:
+        mock_colony_service.find_colony_by_colony_id = MagicMock(
+            return_value=self.valid_colony
+        )
+
+        response = client.get("/colony/1")
+
+        assert response.status_code == 200
+        assert response.json() == {
+            "colony_id": self.valid_colony.colony_id,
+            "hive_id": self.valid_colony.hive_id,
+        }
+        mock_colony_service.find_colony_by_colony_id.assert_called_once_with(
+            colony_id=1
+        )
+
+    def test_get_colony_by_colony_id_not_found(
+        self, mock_colony_service: MagicMock
+    ) -> None:
+        mock_colony_service.find_colony_by_colony_id.return_value = None
+
+        response = client.get("/colony/999")
+
+        assert response.status_code == 404
+        assert response.json()["detail"] == "No colonies found for this hive"

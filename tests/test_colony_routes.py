@@ -110,3 +110,18 @@ class TestColonyRoutes:
 
         assert response.status_code == 404
         assert response.json()["detail"] == "No colonies found for this hive"
+
+    def test_update_colony_success(self, mock_colony_service: MagicMock) -> None:
+        updated_colony = Colony(colony_id=1, hive_id=2)
+        mock_colony_service.update_colony.return_value = updated_colony
+
+        response = client.post("/colony/1", json={"hive_id": 2})
+
+        assert response.status_code == 200
+        assert response.json() == {
+            "colony_id": updated_colony.colony_id,
+            "hive_id": updated_colony.hive_id,
+        }
+        mock_colony_service.update_colony.assert_called_once_with(
+            colony_id=1, hive_id=2
+        )

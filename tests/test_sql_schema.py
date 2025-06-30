@@ -5,12 +5,15 @@ import zoneinfo
 
 import pytest
 
+from db.database_configuration import DatabaseConfiguration
 from db.database_connection import DatabaseConnection
 
 
 @pytest.fixture
 def db() -> DatabaseConnection:
-    db = DatabaseConnection()
+    config: DatabaseConfiguration = DatabaseConfiguration()
+
+    db = DatabaseConnection(config=config)
     db.connect()
     db.seed("./sql/schema.sql")
     db.execute(
@@ -139,7 +142,3 @@ class TestSqlSchema:
         assert results == [
             {"action_id": 1, "notes": "Added some feed", "inspection_id": 1}
         ]
-
-
-if __name__ == "__main__":
-    pytest.main()

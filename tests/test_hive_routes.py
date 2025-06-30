@@ -38,7 +38,7 @@ class TestHiveRoutes:
     def test_create_hive_success(self, mock_hive_service: MagicMock) -> None:
         mock_hive_service.create_hive = MagicMock(return_value=self.valid_hive)
 
-        response = client.post("/apiaries/1/hives", json={"name": "Test Hive"})
+        response = client.post("/hives", json={"name": "Test Hive", "apiary_id": "1"})
 
         assert response.status_code == 200
         assert response.json() == {
@@ -53,9 +53,9 @@ class TestHiveRoutes:
     def test_create_hive_validation_error(self, mock_hive_service: MagicMock) -> None:
         mock_hive_service.create_hive.side_effect = ValueError("Hive name is required")
 
-        response = client.post("/apiaries/1/hives", json={"name": ""})
+        response = client.post("hives", json={"name": "", "apiary_id": "1"})
 
-        assert response.status_code in {400, 422}
+        assert response.status_code == 422
         assert response.json()["detail"] == "Hive name is required"
 
     def test_list_hives_success(self, mock_hive_service: MagicMock) -> None:
@@ -86,7 +86,7 @@ class TestHiveRoutes:
     def test_get_hive_success(self, mock_hive_service: MagicMock) -> None:
         mock_hive_service.find_hive_by_hive_id = MagicMock(return_value=self.valid_hive)
 
-        response = client.get("/apiaries/1/hives/1")
+        response = client.get("/hives/1")
 
         assert response.status_code == 200
         assert response.json() == {
@@ -99,7 +99,7 @@ class TestHiveRoutes:
     def test_get_hive_not_found(self, mock_hive_service: MagicMock) -> None:
         mock_hive_service.find_hive_by_hive_id.return_value = None
 
-        response = client.get("/apiaries/1/hives/999")
+        response = client.get("/hives/999")
 
         assert response.status_code == 404
         assert response.json()["detail"] == "Hive not found"
@@ -108,7 +108,9 @@ class TestHiveRoutes:
         updated_hive = Hive(hive_id=1, name="Updated Hive", apiary_id=1)
         mock_hive_service.update_hive.return_value = updated_hive
 
-        response = client.post("/apiaries/1/hives/1", json={"name": "Updated Hive"})
+        response = client.post(
+            "/hives/1", json={"name": "Updated Hive", "apiary_id": "1"}
+        )
 
         assert response.status_code == 200
         assert response.json() == {
@@ -123,7 +125,7 @@ class TestHiveRoutes:
     def test_update_hive_validation_error(self, mock_hive_service: MagicMock) -> None:
         mock_hive_service.update_hive.side_effect = ValueError("Hive name is required")
 
-        response = client.post("/apiaries/1/hives/1", json={"name": ""})
+        response = client.post("/hives/1", json={"name": "", "apiary_id": "1"})
 
         assert response.status_code == 400
         assert response.json()["detail"] == "Hive name is required"
@@ -131,7 +133,7 @@ class TestHiveRoutes:
     def test_delete_hive_success(self, mock_hive_service: MagicMock) -> None:
         mock_hive_service.delete_hive.return_value = True
 
-        response = client.delete("/apiaries/1/hives/1")
+        response = client.delete("/hives/1")
 
         assert response.status_code == 200
         assert response.json() is True
@@ -140,7 +142,7 @@ class TestHiveRoutes:
     def test_delete_hive_not_found(self, mock_hive_service: MagicMock) -> None:
         mock_hive_service.delete_hive.side_effect = ValueError("Invalid hive_id")
 
-        response = client.delete("/apiaries/1/hives/999")
+        response = client.delete("/hives/999")
 
         assert response.status_code == 404
         assert response.json()["detail"] == "Invalid hive_id"

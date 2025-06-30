@@ -5,6 +5,7 @@ from pydantic import BaseModel
 
 class HiveCreate(BaseModel):
     name: str
+    apiary_id: int
 
 
 class HiveRead(BaseModel):
@@ -15,3 +16,4 @@ class HiveRead(BaseModel):
 
 class HiveUpdate(BaseModel):
     name: str
+    apiary_id: int

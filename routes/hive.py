@@ -11,22 +11,19 @@ from services.hive import HiveService
 router = APIRouter()
 
 
-@router.post("/apiaries/{apiary_id}/hives")
+@router.post("/hives")
 def create_hive(
-    *,
-    apiary_id: int,
     payload: HiveCreate,
     service: Annotated[HiveService, Depends(get_hive_service)],
 ) -> HiveRead:
     try:
-        return service.create_hive(name=payload.name, apiary_id=apiary_id)
+        return service.create_hive(name=payload.name, apiary_id=payload.apiary_id)
     except ValueError as e:
         raise HTTPException(status_code=422, detail=str(e)) from e
 
 
 @router.get("/apiaries/{apiary_id}/hives")
 def list_apiary_hives(
-    *,
     apiary_id: int,
     service: Annotated[HiveService, Depends(get_hive_service)],
 ) -> list[HiveRead]:
@@ -36,9 +33,8 @@ def list_apiary_hives(
     return hives
 
 
-@router.get("/apiaries/{apiary_id}/hives/{hive_id}")
+@router.get("/hives/{hive_id}")
 def get_hive(
-    *,
     hive_id: int,
     service: Annotated[HiveService, Depends(get_hive_service)],
 ) -> HiveRead:
@@ -48,10 +44,8 @@ def get_hive(
     return hives
 
 
-@router.post("/apiaries/{apiary_id}/hives/{hive_id}")
+@router.post("/hives/{hive_id}")
 def update_hive(
-    *,
-    apiary_id: int,
     hive_id: int,
     payload: HiveUpdate,
     service: Annotated[HiveService, Depends(get_hive_service)],
@@ -60,13 +54,13 @@ def update_hive(
         return service.update_hive(
             hive_id=hive_id,
             name=payload.name,
-            apiary_id=apiary_id,
+            apiary_id=payload.apiary_id,
         )
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e)) from e
 
 
-@router.delete("/apiaries/{apiary_id}/hives/{hive_id}")
+@router.delete("/hives/{hive_id}")
 def delete_hive(
     hive_id: int,
     service: Annotated[HiveService, Depends(get_hive_service)],

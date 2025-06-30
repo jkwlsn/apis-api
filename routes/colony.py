@@ -13,7 +13,6 @@ router = APIRouter()
 
 @router.post("/colony")
 def create_colony(
-    *,
     payload: ColonyCreate,
     service: Annotated[ColonyService, Depends(get_colony_service)],
 ) -> ColonyRead:
@@ -25,7 +24,6 @@ def create_colony(
 
 @router.get("/hives/{hive_id}/colony")
 def get_colony_by_hive_id(
-    *,
     hive_id: int,
     service: Annotated[ColonyService, Depends(get_colony_service)],
 ) -> list[ColonyRead]:
@@ -37,7 +35,6 @@ def get_colony_by_hive_id(
 
 @router.get("/colony/{colony_id}")
 def get_colony_by_colony_id(
-    *,
     colony_id: int,
     service: Annotated[ColonyService, Depends(get_colony_service)],
 ) -> ColonyRead:
@@ -49,7 +46,6 @@ def get_colony_by_colony_id(
 
 @router.post("/colony/{colony_id}")
 def update_colony(
-    *,
     colony_id: int,
     payload: ColonyUpdate,
     service: Annotated[ColonyService, Depends(get_colony_service)],

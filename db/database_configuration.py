@@ -4,6 +4,7 @@ import os
 from pathlib import Path
 
 from dotenv import dotenv_values
+from psycopg.conninfo import make_conninfo
 
 
 class DatabaseConfiguration:
@@ -20,3 +21,10 @@ class DatabaseConfiguration:
         self.dbname: str | None = config.get("POSTGRES_DB")
         self.user: str | None = config.get("POSTGRES_USER")
         self.password: str | None = config.get("POSTGRES_PASSWORD")
+        self.url = make_conninfo(
+            host=self.host,
+            port=self.port,
+            user=self.user,
+            password=self.password,
+            dbname=self.dbname,
+        )

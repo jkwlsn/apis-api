@@ -4,30 +4,15 @@ from pathlib import Path
 
 import psycopg
 from psycopg.abc import Query
-from psycopg.conninfo import make_conninfo
 from psycopg.rows import dict_row
 
 from db.database_configuration import DatabaseConfiguration
 
 
 class DatabaseConnection:
-    def __init__(self, **kwargs: str) -> None:
-        db: DatabaseConfiguration = DatabaseConfiguration()
-        self.host: str | None = kwargs.get("host", db.host)
-        self.port: str | None = kwargs.get("port", db.port)
-        self.user: str | None = kwargs.get("user", db.user)
-        self.password: str | None = kwargs.get("password", db.password)
-        self.dbname: str | None = kwargs.get("dbname", db.dbname)
-        self.connection: psycopg.Connection | None = None
-
-    def _build_connection_string(self) -> str:
-        return make_conninfo(
-            host=self.host,
-            port=self.port,
-            user=self.user,
-            password=self.password,
-            dbname=self.dbname,
-        )
+    def __init__(self, config: DatabaseConfiguration) -> None:
+        self.db: DatabaseConfiguration = config
+        self.connection = None
 
     def connect(self) -> None:
         """
@@ -39,14 +24,12 @@ class DatabaseConnection:
         """
         try:
             self.connection = psycopg.connect(
-                self._build_connection_string(),
+                conninfo=self.db.url,
                 row_factory=dict_row,
             )
             self.connection.autocommit = True
         except psycopg.OperationalError as e:
-            error_message = (
-                f"Couldn't connect to {self.host}:{self.port}/{self.dbname}: {e}"
-            )
+            error_message: str = f"Couldn't connect to {self.db.host}:{self.db.port}/{self.db.dbname}: {e}"
             raise ConnectionError(error_message) from e
 
     def close(self) -> None:
@@ -73,7 +56,9 @@ class DatabaseConnection:
             with self.connection.cursor() as cursor:
                 cursor.execute(query, params)
                 return cursor.fetchall() if cursor.description else None
-        error_message = f"No connection to {self.host}:{self.port}/{self.dbname}"
+        error_message = (
+            f"No connection to {self.db.host}:{self.db.port}/{self.db.dbname}"
+        )
         raise ConnectionError(error_message)
 
     def seed(self, sql_file_name: str) -> None:
@@ -89,7 +74,9 @@ class DatabaseConnection:
 
         """
         if not self.connection or self.connection.closed:
-            error_message = f"No connection to {self.host}:{self.port}/{self.dbname}"
+            error_message = (
+                f"No connection to {self.db.host}:{self.db.port}/{self.db.dbname}"
+            )
             raise ConnectionError(error_message)
         sql_file_path = Path(sql_file_name)
         try:

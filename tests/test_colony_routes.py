@@ -34,3 +34,22 @@ class TestColonyRoutes:
         service: ColonyService = get_colony_service()
         assert service is not None
         assert isinstance(service, ColonyService)
+
+    def test_create_colony_success(self, mock_colony_service: MagicMock) -> None:
+        mock_colony_service.create_colony = MagicMock(return_value=self.valid_colony)
+
+        response = client.post("/colony", json={"hive_id": "1"})
+
+        assert response.status_code == 200
+        assert response.json() == {
+            "colony_id": self.valid_colony.colony_id,
+            "hive_id": self.valid_colony.hive_id,
+        }
+        mock_colony_service.create_colony.assert_called_once_with(hive_id=1)
+
+    def test_create_colony_failure(self, mock_colony_service: MagicMock) -> None:
+        mock_colony_service.create_colony = MagicMock(return_value=self.valid_colony)
+
+        response = client.post("/colony")
+
+        assert response.status_code == 422

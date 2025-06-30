@@ -42,8 +42,8 @@ class TestApiaryRoutes:
         mock_apiary_service.create_apiary = MagicMock(return_value=self.valid_apiary)
 
         response = client.post(
-            "/users/1/apiaries",
-            json={"name": "Happy Bees", "location": "Kent"},
+            "/apiaries",
+            json={"name": "Happy Bees", "location": "Kent", "user_id": "1"},
         )
 
         assert response.status_code == 200
@@ -58,8 +58,8 @@ class TestApiaryRoutes:
         )
 
         response = client.post(
-            "/users/1/apiaries",
-            json={"name": "   ", "location": "Kent"},
+            "/apiaries",
+            json={"name": "   ", "location": "Kent", "user_id": "1"},
         )
 
         assert response.status_code in {400, 422}
@@ -69,8 +69,8 @@ class TestApiaryRoutes:
         mock_apiary_service.create_apiary.side_effect = ValueError("Invalid user_id")
 
         response = client.post(
-            "/users/999/apiaries",
-            json={"name": "Happy Bees", "location": "Kent"},
+            "/apiaries",
+            json={"name": "Happy Bees", "location": "Kent", "user_id": "999"},
         )
 
         assert response.status_code in {400, 422}

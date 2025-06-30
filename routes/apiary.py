@@ -11,16 +11,14 @@ from services.dependencies import get_apiary_service
 router = APIRouter()
 
 
-@router.post("/users/{user_id}/apiaries")
+@router.post("/apiaries")
 def create_apiary(
-    *,
-    user_id: int,
     payload: ApiaryCreate,
     service: Annotated[ApiaryService, Depends(get_apiary_service)],
 ) -> ApiaryRead:
     try:
         return service.create_apiary(
-            name=payload.name, location=payload.location, user_id=user_id
+            name=payload.name, location=payload.location, user_id=payload.user_id
         )
     except ValueError as e:
         raise HTTPException(status_code=422, detail=str(e)) from e
@@ -28,7 +26,6 @@ def create_apiary(
 
 @router.get("/users/{user_id}/apiaries")
 def list_user_apiaries(
-    *,
     user_id: int,
     service: Annotated[ApiaryService, Depends(get_apiary_service)],
 ) -> list[ApiaryRead]:
@@ -40,7 +37,6 @@ def list_user_apiaries(
 
 @router.get("/apiaries/{apiary_id}")
 def get_apiary(
-    *,
     apiary_id: int,
     service: Annotated[ApiaryService, Depends(get_apiary_service)],
 ) -> ApiaryRead:
@@ -52,7 +48,6 @@ def get_apiary(
 
 @router.post("/apiaries/{apiary_id}")
 def update_apiary(
-    *,
     apiary_id: int,
     payload: ApiaryUpdate,
     service: Annotated[ApiaryService, Depends(get_apiary_service)],

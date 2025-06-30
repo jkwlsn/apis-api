@@ -61,3 +61,14 @@ def update_colony(
         )
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e)) from e
+
+
+@router.delete("/colony/{colony_id}")
+def delete_colony(
+    colony_id: int,
+    service: Annotated[ColonyService, Depends(get_colony_service)],
+) -> bool:
+    try:
+        return service.delete_colony(colony_id=colony_id)
+    except ValueError as e:
+        raise HTTPException(status_code=404, detail=str(e)) from e

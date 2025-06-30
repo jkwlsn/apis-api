@@ -53,3 +53,32 @@ class TestColonyRoutes:
         response = client.post("/colony")
 
         assert response.status_code == 422
+
+    def test_get_colony_by_hive_id_success(
+        self, mock_colony_service: MagicMock
+    ) -> None:
+        mock_colony_service.find_colony_by_hive_id = MagicMock(
+            return_value=[self.valid_colony]
+        )
+
+        response = client.get("/hives/1/colony")
+
+        assert response.status_code == 200
+        assert response.json() == [
+            {
+                "colony_id": self.valid_colony.colony_id,
+                "hive_id": self.valid_colony.hive_id,
+            }
+        ]
+
+        mock_colony_service.find_colony_by_hive_id.assert_called_once_with(hive_id=1)
+
+    def test_get_colony_by_hive_id_not_found(
+        self, mock_colony_service: MagicMock
+    ) -> None:
+        mock_colony_service.find_colony_by_hive_id.return_value = []
+
+        response = client.get("/hives/999/colony")
+
+        assert response.status_code == 404
+        assert response.json()["detail"] == "No colonies found for this hive"

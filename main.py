@@ -5,12 +5,10 @@ from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
 
-from db.database_connection import DatabaseConnection
+from db.instance import db
 from routes.apiary import router as apiary_router
 from routes.hive import router as hive_router
 from routes.user import router as user_router
-
-db = DatabaseConnection()
 
 
 @asynccontextmanager

@@ -10,3 +10,7 @@ class ColonyCreate(BaseModel):
 class ColonyRead(BaseModel):
     colony_id: int
     hive_id: int
+
+
+class ColonyUpdate(BaseModel):
+    hive_id: int

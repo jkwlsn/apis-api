@@ -2,9 +2,11 @@
 
 from db.instance import db
 from repositories.apiary import ApiaryRepository
+from repositories.colony import ColonyRepository
 from repositories.hive import HiveRepository
 from repositories.user import UserRepository
 from services.apiary import ApiaryService
+from services.colony import ColonyService
 from services.hive import HiveService
 from services.user import UserService
 
@@ -24,3 +26,9 @@ def get_hive_service() -> HiveService:
     apiary_repo = ApiaryRepository(db)
     hive_repo = HiveRepository(db)
     return HiveService(hive_repo=hive_repo, apiary_repo=apiary_repo)
+
+
+def get_colony_service() -> ColonyService:
+    colony_repo = ColonyRepository(db)
+    hive_repo = HiveRepository(db)
+    return ColonyService(colony_repo=colony_repo, hive_repo=hive_repo)

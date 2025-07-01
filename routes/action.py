@@ -51,3 +51,19 @@ def get_action_by_action_id(
             status_code=404, detail="No actions found for this inspection"
         )
     return action
+
+
+@router.post("/actions/{action_id}")
+def update_action(
+    action_id: int,
+    payload: ActionUpdate,
+    service: Annotated[ActionService, Depends(get_action_service)],
+) -> ActionRead:
+    try:
+        return service.update_action(
+            action_id=action_id,
+            notes=payload.notes,
+            inspection_id=payload.inspection_id,
+        )
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e)) from e

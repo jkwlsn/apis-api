@@ -51,3 +51,19 @@ def get_inspection_by_inspection_id(
             status_code=404, detail="No inspections found for this colony"
         )
     return inspection
+
+
+@router.post("/inspections/{inspection_id}")
+def update_inspection(
+    inspection_id: int,
+    payload: InspectionUpdate,
+    service: Annotated[InspectionService, Depends(get_inspection_service)],
+) -> InspectionRead:
+    try:
+        return service.update_inspection(
+            inspection_id=inspection_id,
+            inspection_timestamp=payload.inspection_timestamp,
+            colony_id=payload.colony_id,
+        )
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e)) from e

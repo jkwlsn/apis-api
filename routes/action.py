@@ -67,3 +67,14 @@ def update_action(
         )
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e)) from e
+
+
+@router.delete("/actions/{action_id}")
+def delete_action(
+    action_id: int,
+    service: Annotated[ActionService, Depends(get_action_service)],
+) -> bool:
+    try:
+        return service.delete_action(action_id=action_id)
+    except ValueError as e:
+        raise HTTPException(status_code=404, detail=str(e)) from e

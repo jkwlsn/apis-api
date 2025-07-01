@@ -83,3 +83,38 @@ class TestInspectionRoutes:
         )
 
         assert response.status_code == 422
+
+    def test_get_inspections_by_colony_id_success(
+        self, mock_inspection_service: MagicMock, valid_inspection_read: InspectionRead
+    ) -> None:
+        mock_inspection_service.find_inspections_by_colony_id.return_value = [
+            valid_inspection_read
+        ]
+
+        response = client.get(
+            f"/colonies/{valid_inspection_read.colony_id}/inspections"
+        )
+
+        assert response.status_code == 200, f"Unexpected status: {response.text}"
+        assert response.json() == [
+            {
+                "inspection_id": valid_inspection_read.inspection_id,
+                "inspection_timestamp": valid_inspection_read.inspection_timestamp.strftime(
+                    "%Y-%m-%dT%H:%M:%SZ"
+                ),
+                "colony_id": valid_inspection_read.colony_id,
+            }
+        ]
+        mock_inspection_service.find_inspections_by_colony_id.assert_called_once_with(
+            colony_id=valid_inspection_read.colony_id
+        )
+
+    def test_get_inspection_by_colony_id_not_found(
+        self, mock_inspection_service: MagicMock
+    ) -> None:
+        mock_inspection_service.find_inspections_by_colony_id.return_value = []
+
+        response = client.get("/colonies/999/inspections")
+
+        assert response.status_code == 404
+        assert response.json()["detail"] == "No inspections found for this colony"

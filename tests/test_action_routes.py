@@ -50,3 +50,39 @@ class TestActionRoutes:
     def test_get_action_service_direct(self) -> None:
         service: ActionService = get_action_service()
         assert isinstance(service, ActionService)
+
+    def test_create_action_success(
+        self, mock_action_service: MagicMock, valid_action_read: ActionRead
+    ) -> None:
+        mock_action_service.create_action.return_value = valid_action_read
+
+        response = client.post(
+            "/actions",
+            json={
+                "notes": valid_action_read.notes,
+                "inspection_id": valid_action_read.inspection_id,
+            },
+        )
+
+        assert response.status_code == 200, f"Unexpected status: {response.text}"
+        assert response.json() == {
+            "action_id": 1,
+            "notes": "Example notes",
+            "inspection_id": 1,
+        }
+        mock_action_service.create_action.assert_called_once()
+
+    def test_create_action_failure(
+        self, mock_action_service: MagicMock, invalid_action_read: ActionRead
+    ) -> None:
+        mock_action_service.create_action.side_effect = ValueError()
+
+        response = client.post(
+            "/actions",
+            json={
+                "notes": invalid_action_read.notes,
+                "inspection_id": invalid_action_read.inspection_id,
+            },
+        )
+
+        assert response.status_code == 422

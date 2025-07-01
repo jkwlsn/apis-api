@@ -38,3 +38,16 @@ def get_inspection_by_colony_id(
             status_code=404, detail="No inspections found for this colony"
         )
     return inspections
+
+
+@router.get("/inspections/{inspection_id}")
+def get_inspection_by_inspection_id(
+    inspection_id: int,
+    service: Annotated[InspectionService, Depends(get_inspection_service)],
+) -> InspectionRead:
+    inspection = service.find_inspection_by_inspection_id(inspection_id=inspection_id)
+    if not inspection:
+        raise HTTPException(
+            status_code=404, detail="No inspections found for this colony"
+        )
+    return inspection

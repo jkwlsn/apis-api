@@ -1,12 +1,14 @@
 """Dependencies required by routes"""
 
 from db.instance import db
+from repositories.action import ActionRepository
 from repositories.apiary import ApiaryRepository
 from repositories.colony import ColonyRepository
 from repositories.hive import HiveRepository
 from repositories.inspection import InspectionRepository
 from repositories.queen import QueenRepository
 from repositories.user import UserRepository
+from services.action import ActionService
 from services.apiary import ApiaryService
 from services.colony import ColonyService
 from services.hive import HiveService
@@ -48,3 +50,9 @@ def get_inspection_service() -> InspectionService:
     inspection_repo = InspectionRepository(db)
     colony_repo = ColonyRepository(db)
     return InspectionService(inspection_repo=inspection_repo, colony_repo=colony_repo)
+
+
+def get_action_service() -> ActionService:
+    action_repo = ActionRepository(db)
+    inspection_repo = InspectionRepository(db)
+    return ActionService(action_repo=action_repo, inspection_repo=inspection_repo)

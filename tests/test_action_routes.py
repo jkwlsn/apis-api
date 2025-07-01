@@ -185,3 +185,20 @@ class TestActionRoutes:
         )
 
         assert response.status_code == 400
+
+    def test_delete_action_success(self, mock_action_service: MagicMock) -> None:
+        mock_action_service.delete_action.return_value = True
+
+        response = client.delete("/actions/1")
+
+        assert response.status_code == 200
+        assert response.json() is True
+        mock_action_service.delete_action.assert_called_once_with(action_id=1)
+
+    def test_delete_action_not_found(self, mock_action_service: MagicMock) -> None:
+        mock_action_service.delete_action.side_effect = ValueError("Invalid action_id")
+
+        response = client.delete("/actions/999")
+
+        assert response.status_code == 404
+        assert response.json()["detail"] == "Invalid action_id"

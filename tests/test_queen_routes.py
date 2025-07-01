@@ -61,3 +61,34 @@ class TestQueenRoutes:
         )
 
         assert response.status_code == 422
+
+    def test_get_queen_by_colony_id_success(
+        self, mock_queen_service: MagicMock
+    ) -> None:
+        mock_queen_service.find_queen_by_colony_id = MagicMock(
+            return_value=[self.valid_queen]
+        )
+
+        response = client.get("/colonies/1/queens")
+
+        assert response.status_code == 200
+        assert response.json() == [
+            {
+                "queen_id": self.valid_queen.queen_id,
+                "colour": self.valid_queen.colour,
+                "clipped": self.valid_queen.clipped,
+                "colony_id": self.valid_queen.colony_id,
+            }
+        ]
+
+        mock_queen_service.find_queen_by_colony_id.assert_called_once_with(colony_id=1)
+
+    def test_get_queen_by_colony_id_not_found(
+        self, mock_queen_service: MagicMock
+    ) -> None:
+        mock_queen_service.find_queen_by_colony_id.return_value = []
+
+        response = client.get("/colonies/999/queens")
+
+        assert response.status_code == 404
+        assert response.json()["detail"] == "No queens found for this colony"

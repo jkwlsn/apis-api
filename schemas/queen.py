@@ -9,6 +9,12 @@ class QueenCreate(BaseModel):
     colony_id: int
 
 
+class QueenUpdate(BaseModel):
+    colour: str
+    clipped: bool
+    colony_id: int
+
+
 class QueenRead(BaseModel):
     queen_id: int
     colour: str

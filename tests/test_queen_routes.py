@@ -146,3 +146,20 @@ class TestQueenRoutes:
         )
 
         assert response.status_code == 400
+
+    def test_delete_queen_success(self, mock_queen_service: MagicMock) -> None:
+        mock_queen_service.delete_queen.return_value = True
+
+        response = client.delete("/queens/1")
+
+        assert response.status_code == 200
+        assert response.json() is True
+        mock_queen_service.delete_queen.assert_called_once_with(queen_id=1)
+
+    def test_delete_queen_not_found(self, mock_queen_service: MagicMock) -> None:
+        mock_queen_service.delete_queen.side_effect = ValueError("Invalid queen_id")
+
+        response = client.delete("/queens/999")
+
+        assert response.status_code == 404
+        assert response.json()["detail"] == "Invalid queen_id"

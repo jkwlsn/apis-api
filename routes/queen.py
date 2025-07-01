@@ -61,3 +61,14 @@ def update_queen(
         )
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e)) from e
+
+
+@router.delete("/queens/{queen_id}")
+def delete_queen(
+    queen_id: int,
+    service: Annotated[QueenService, Depends(get_queen_service)],
+) -> bool:
+    try:
+        return service.delete_queen(queen_id=queen_id)
+    except ValueError as e:
+        raise HTTPException(status_code=404, detail=str(e)) from e

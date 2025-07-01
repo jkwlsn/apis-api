@@ -149,3 +149,52 @@ class TestInspectionRoutes:
 
         assert response.status_code == 404
         assert response.json()["detail"] == "No inspections found for this colony"
+
+    def test_update_inspection_success(
+        self, mock_inspection_service: MagicMock
+    ) -> None:
+        updated_inspection = Inspection(
+            inspection_id=1,
+            inspection_timestamp=datetime(2025, 6, 23, 2, 10, 25, tzinfo=UTC),
+            colony_id=2,
+        )
+        mock_inspection_service.update_inspection.return_value = updated_inspection
+
+        response = client.post(
+            "/inspections/1",
+            json={
+                "inspection_timestamp": updated_inspection.inspection_timestamp.strftime(
+                    "%Y-%m-%dT%H:%M:%SZ"
+                ),
+                "colony_id": updated_inspection.colony_id,
+            },
+        )
+
+        assert response.status_code == 200, f"Unexpected status: {response.text}"
+        assert response.json() == {
+            "inspection_id": updated_inspection.inspection_id,
+            "inspection_timestamp": updated_inspection.inspection_timestamp.strftime(
+                "%Y-%m-%dT%H:%M:%SZ"
+            ),
+            "colony_id": updated_inspection.colony_id,
+        }
+        mock_inspection_service.update_inspection.assert_called_once_with(
+            inspection_id=1,
+            inspection_timestamp=updated_inspection.inspection_timestamp,
+            colony_id=updated_inspection.colony_id,
+        )
+
+    def test_update_inspection_failure(
+        self, mock_inspection_service: MagicMock
+    ) -> None:
+        mock_inspection_service.update_inspection.side_effect = ValueError()
+
+        response = client.post(
+            "/inspections/1",
+            json={
+                "inspection_timestamp": "2025-06-23T02:10:25Z",
+                "colony_id": -999,
+            },
+        )
+
+        assert response.status_code == 400

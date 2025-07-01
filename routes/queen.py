@@ -33,3 +33,14 @@ def get_queen_by_colony_id(
     if not queen:
         raise HTTPException(status_code=404, detail="No queens found for this colony")
     return queen
+
+
+@router.get("/queens/{queen_id}")
+def get_queen_by_queen_id(
+    queen_id: int,
+    service: Annotated[QueenService, Depends(get_queen_service)],
+) -> QueenRead:
+    queen = service.find_queen_by_queen_id(queen_id=queen_id)
+    if not queen:
+        raise HTTPException(status_code=404, detail="No queens found for this colony")
+    return queen

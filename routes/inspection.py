@@ -67,3 +67,14 @@ def update_inspection(
         )
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e)) from e
+
+
+@router.delete("/inspections/{inspection_id}")
+def delete_inspection(
+    inspection_id: int,
+    service: Annotated[InspectionService, Depends(get_inspection_service)],
+) -> bool:
+    try:
+        return service.delete_inspection(inspection_id=inspection_id)
+    except ValueError as e:
+        raise HTTPException(status_code=404, detail=str(e)) from e

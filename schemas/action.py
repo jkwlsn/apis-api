@@ -12,3 +12,8 @@ class ActionRead(BaseModel):
     action_id: int
     notes: str
     inspection_id: int
+
+
+class ActionUpdate(BaseModel):
+    notes: str
+    inspection_id: int

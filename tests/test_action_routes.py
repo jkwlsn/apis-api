@@ -86,3 +86,34 @@ class TestActionRoutes:
         )
 
         assert response.status_code == 422
+
+    def test_get_actions_by_inspection_id_success(
+        self, mock_action_service: MagicMock, valid_action_read: ActionRead
+    ) -> None:
+        mock_action_service.find_actions_by_inspection_id.return_value = [
+            valid_action_read
+        ]
+
+        response = client.get(f"/inspections/{valid_action_read.inspection_id}/actions")
+
+        assert response.status_code == 200, f"Unexpected status: {response.text}"
+        assert response.json() == [
+            {
+                "action_id": 1,
+                "notes": "Example notes",
+                "inspection_id": 1,
+            }
+        ]
+        mock_action_service.find_actions_by_inspection_id.assert_called_once_with(
+            inspection_id=1
+        )
+
+    def test_get_actions_by_inspection_id_not_found(
+        self, mock_action_service: MagicMock
+    ) -> None:
+        mock_action_service.find_actions_by_inspection_id.return_value = []
+
+        response = client.get("/inspections/999/actions")
+
+        assert response.status_code == 404
+        assert response.json()["detail"] == "No actions found for this inspection"

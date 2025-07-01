@@ -144,3 +144,44 @@ class TestActionRoutes:
 
         assert response.status_code == 404
         assert response.json()["detail"] == "No actions found for this inspection"
+
+    def test_update_action_success(self, mock_action_service: MagicMock) -> None:
+        updated_action = Action(
+            action_id=1,
+            notes="New notes",
+            inspection_id=2,
+        )
+        mock_action_service.update_action.return_value = updated_action
+
+        response = client.post(
+            "/actions/1",
+            json={
+                "notes": "New notes",
+                "inspection_id": 2,
+            },
+        )
+
+        assert response.status_code == 200, f"Unexpected status: {response.text}"
+        assert response.json() == {
+            "action_id": 1,
+            "notes": "New notes",
+            "inspection_id": 2,
+        }
+        mock_action_service.update_action.assert_called_once_with(
+            action_id=1, notes="New notes", inspection_id=2
+        )
+
+    def test_update_action_failure(
+        self, mock_action_service: MagicMock, invalid_action_read: ActionRead
+    ) -> None:
+        mock_action_service.update_action.side_effect = ValueError()
+
+        response = client.post(
+            "/actions/1",
+            json={
+                "notes": "New notes",
+                "inspection_id": invalid_action_read.inspection_id,
+            },
+        )
+
+        assert response.status_code == 400

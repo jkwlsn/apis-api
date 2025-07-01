@@ -118,3 +118,31 @@ class TestQueenRoutes:
 
         assert response.status_code == 404
         assert response.json()["detail"] == "No queens found for this colony"
+
+    def test_update_queen_success(self, mock_queen_service: MagicMock) -> None:
+        updated_queen = Queen(queen_id=1, colour="Yellow", clipped=True, colony_id=2)
+        mock_queen_service.update_queen.return_value = updated_queen
+
+        response = client.post(
+            "/queens/1", json={"colour": "Yellow", "clipped": True, "colony_id": "2"}
+        )
+
+        assert response.status_code == 200
+        assert response.json() == {
+            "queen_id": updated_queen.queen_id,
+            "colour": self.valid_queen.colour,
+            "clipped": self.valid_queen.clipped,
+            "colony_id": updated_queen.colony_id,
+        }
+        mock_queen_service.update_queen.assert_called_once_with(
+            queen_id=1, colour="Yellow", clipped=True, colony_id=2
+        )
+
+    def test_update_queen_failure(self, mock_queen_service: MagicMock) -> None:
+        mock_queen_service.update_queen.side_effect = ValueError()
+
+        response = client.post(
+            "/queens/1", json={"colour": "Yellow", "clipped": True, "colony_id": "-999"}
+        )
+
+        assert response.status_code == 400

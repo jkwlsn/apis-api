@@ -42,3 +42,44 @@ class TestInspectionRoutes:
     def test_get_inspection_service_direct(self) -> None:
         service: InspectionService = get_inspection_service()
         assert isinstance(service, InspectionService)
+
+    def test_create_inspection_success(
+        self, mock_inspection_service: MagicMock, valid_inspection_read: InspectionRead
+    ) -> None:
+        mock_inspection_service.create_inspection.return_value = valid_inspection_read
+
+        response = client.post(
+            "/inspections",
+            json={
+                "inspection_timestamp": valid_inspection_read.inspection_timestamp.strftime(
+                    "%Y-%m-%dT%H:%M:%SZ"
+                ),
+                "colony_id": valid_inspection_read.colony_id,
+            },
+        )
+
+        assert response.status_code == 200, f"Unexpected status: {response.text}"
+        expected = {
+            "inspection_id": valid_inspection_read.inspection_id,
+            "inspection_timestamp": valid_inspection_read.inspection_timestamp.strftime(
+                "%Y-%m-%dT%H:%M:%SZ"
+            ),
+            "colony_id": valid_inspection_read.colony_id,
+        }
+        assert response.json() == expected
+        mock_inspection_service.create_inspection.assert_called_once()
+
+    def test_create_inspection_failure(
+        self, mock_inspection_service: MagicMock
+    ) -> None:
+        mock_inspection_service.create_inspection.side_effect = ValueError()
+
+        response = client.post(
+            "/inspections",
+            json={
+                "inspection_timestamp": "2025-06-23T02:10:25Z",
+                "colony_id": -999,
+            },
+        )
+
+        assert response.status_code == 422

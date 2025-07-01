@@ -34,3 +34,30 @@ class TestQueenRoutes:
         service: QueenService = get_queen_service()
         assert service is not None
         assert isinstance(service, QueenService)
+
+    def test_create_queen_success(self, mock_queen_service: MagicMock) -> None:
+        mock_queen_service.create_queen = MagicMock(return_value=self.valid_queen)
+
+        response = client.post(
+            "/queens", json={"colour": "Yellow", "clipped": True, "colony_id": 1}
+        )
+
+        assert response.status_code == 200
+        assert response.json() == {
+            "queen_id": self.valid_queen.queen_id,
+            "colour": self.valid_queen.colour,
+            "clipped": self.valid_queen.clipped,
+            "colony_id": self.valid_queen.colony_id,
+        }
+        mock_queen_service.create_queen.assert_called_once_with(
+            colour="Yellow", clipped=True, colony_id=1
+        )
+
+    def test_create_queen_failure(self, mock_queen_service: MagicMock) -> None:
+        mock_queen_service.create_queen.side_effect = ValueError()
+
+        response = client.post(
+            "/queens", json={"colour": "Yellow", "clipped": True, "colony_id": -999}
+        )
+
+        assert response.status_code == 422

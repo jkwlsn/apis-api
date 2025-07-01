@@ -198,3 +198,28 @@ class TestInspectionRoutes:
         )
 
         assert response.status_code == 400
+
+    def test_delete_inspection_success(
+        self, mock_inspection_service: MagicMock
+    ) -> None:
+        mock_inspection_service.delete_inspection.return_value = True
+
+        response = client.delete("/inspections/1")
+
+        assert response.status_code == 200
+        assert response.json() is True
+        mock_inspection_service.delete_inspection.assert_called_once_with(
+            inspection_id=1
+        )
+
+    def test_delete_inspection_not_found(
+        self, mock_inspection_service: MagicMock
+    ) -> None:
+        mock_inspection_service.delete_inspection.side_effect = ValueError(
+            "Invalid inspection_id"
+        )
+
+        response = client.delete("/inspections/999")
+
+        assert response.status_code == 404
+        assert response.json()["detail"] == "Invalid inspection_id"

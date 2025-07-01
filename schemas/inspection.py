@@ -1,16 +1,19 @@
 """Inspection schema"""
 
-from datetime import datetime
-
-from pydantic import BaseModel
+from pydantic import AwareDatetime, BaseModel
 
 
 class InspectionCreate(BaseModel):
-    inspection_timestamp: datetime
+    inspection_timestamp: AwareDatetime
+    colony_id: int
+
+
+class InspectionUpdate(BaseModel):
+    inspection_timestamp: AwareDatetime
     colony_id: int
 
 
 class InspectionRead(BaseModel):
     inspection_id: int
-    inspection_timestamp: datetime
+    inspection_timestamp: AwareDatetime
     colony_id: int

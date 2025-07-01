@@ -38,3 +38,16 @@ def get_actions_by_inspection_id(
             status_code=404, detail="No actions found for this inspection"
         )
     return actions
+
+
+@router.get("/actions/{action_id}")
+def get_action_by_action_id(
+    action_id: int,
+    service: Annotated[ActionService, Depends(get_action_service)],
+) -> ActionRead:
+    action = service.find_action_by_action_id(action_id=action_id)
+    if not action:
+        raise HTTPException(
+            status_code=404, detail="No actions found for this inspection"
+        )
+    return action

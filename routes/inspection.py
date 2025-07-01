@@ -23,3 +23,18 @@ def create_inspection(
         )
     except ValueError as e:
         raise HTTPException(status_code=422, detail=str(e)) from e
+
+
+@router.get("/colonies/{colony_id}/inspections")
+def get_inspection_by_colony_id(
+    colony_id: int,
+    service: Annotated[InspectionService, Depends(get_inspection_service)],
+) -> list[InspectionRead]:
+    inspections: list[InspectionRead] | None = service.find_inspections_by_colony_id(
+        colony_id=colony_id
+    )
+    if not inspections:
+        raise HTTPException(
+            status_code=404, detail="No inspections found for this colony"
+        )
+    return inspections

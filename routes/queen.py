@@ -44,3 +44,20 @@ def get_queen_by_queen_id(
     if not queen:
         raise HTTPException(status_code=404, detail="No queens found for this colony")
     return queen
+
+
+@router.post("/queens/{queen_id}")
+def update_queen(
+    queen_id: int,
+    payload: QueenUpdate,
+    service: Annotated[QueenService, Depends(get_queen_service)],
+) -> QueenRead:
+    try:
+        return service.update_queen(
+            queen_id=queen_id,
+            colour=payload.colour,
+            clipped=payload.clipped,
+            colony_id=payload.colony_id,
+        )
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e)) from e

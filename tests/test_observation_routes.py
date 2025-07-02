@@ -328,3 +328,28 @@ class TestObservationRoutes:
             notes="Example notes",
             inspection_id=-999,
         )
+
+    def test_delete_observation_success(
+        self, mock_observation_service: MagicMock
+    ) -> None:
+        mock_observation_service.delete_observation.return_value = True
+
+        response = client.delete("/observations/1")
+
+        assert response.status_code == 200
+        assert response.json() is True
+        mock_observation_service.delete_observation.assert_called_once_with(
+            observation_id=1
+        )
+
+    def test_delete_observation_not_found(
+        self, mock_observation_service: MagicMock
+    ) -> None:
+        mock_observation_service.delete_observation.side_effect = ValueError(
+            "Invalid observation_id"
+        )
+
+        response = client.delete("/observations/-999")
+
+        assert response.status_code == 404
+        assert response.json()["detail"] == "Invalid observation_id"

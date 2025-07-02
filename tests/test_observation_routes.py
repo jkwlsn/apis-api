@@ -141,3 +141,46 @@ class TestObservationRoutes:
             notes="Example notes",
             inspection_id=-999,
         )
+
+    def test_get_observations_by_inspection_id_success(
+        self,
+        mock_observation_service: MagicMock,
+        valid_observation_read: ObservationRead,
+    ) -> None:
+        mock_observation_service.find_observation_by_inspection_id.return_value = (
+            valid_observation_read
+        )
+        response = client.get("/inspections/1/observations")
+
+        assert response.status_code == 200, f"Unexpected status: {response.text}"
+        assert response.json() == {
+            "observation_id": 1,
+            "queenright": True,
+            "queen_cells": 5,
+            "bias": True,
+            "brood_frames": 5,
+            "store_frames": 6,
+            "chalk_brood": False,
+            "foul_brood": False,
+            "varroa_count": 10,
+            "temper": 5,
+            "notes": "Example notes",
+            "inspection_id": 1,
+        }
+
+        mock_observation_service.find_observation_by_inspection_id.assert_called_once_with(
+            inspection_id=valid_observation_read.inspection_id
+        )
+
+    def test_get_observation_by_inspection_id_not_found(
+        self, mock_observation_service: MagicMock
+    ) -> None:
+        mock_observation_service.find_observation_by_inspection_id.return_value = None
+
+        response = client.get("/inspections/999/observations")
+
+        assert response.status_code == 404
+        assert response.json()["detail"] == "No observations found for this inspection"
+        mock_observation_service.find_observation_by_inspection_id.assert_called_once_with(
+            inspection_id=999
+        )

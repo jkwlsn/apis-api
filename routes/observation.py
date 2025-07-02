@@ -48,3 +48,17 @@ def get_observation_by_observation_id(
             status_code=404, detail="No observations found for this inspection"
         )
     return observation
+
+
+@router.post("/observations/{observation_id}")
+def update_observation(
+    observation_id: int,
+    payload: ObservationUpdate,
+    service: Annotated[ObservationService, Depends(get_observation_service)],
+) -> ObservationRead:
+    try:
+        return service.update_observation(
+            observation_id=observation_id, **payload.model_dump()
+        )
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e)) from e

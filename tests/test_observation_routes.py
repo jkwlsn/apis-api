@@ -50,3 +50,94 @@ class TestObservationRoutes:
     def test_get_observation_service_direct(self) -> None:
         service: ObservationService = get_observation_service()
         assert isinstance(service, ObservationService)
+
+    def test_create_observation_success(
+        self,
+        mock_observation_service: MagicMock,
+        valid_observation_read: ObservationRead,
+    ) -> None:
+        mock_observation_service.create_observation.return_value = (
+            valid_observation_read
+        )
+
+        response = client.post(
+            "/observations",
+            json={
+                "queenright": True,
+                "queen_cells": 5,
+                "bias": True,
+                "brood_frames": 5,
+                "store_frames": 6,
+                "chalk_brood": False,
+                "foul_brood": False,
+                "varroa_count": 10,
+                "temper": 5,
+                "notes": "Example notes",
+                "inspection_id": 1,
+            },
+        )
+
+        assert response.status_code == 200, f"Unexpected status: {response.text}"
+        assert response.json() == {
+            "observation_id": 1,
+            "queenright": True,
+            "queen_cells": 5,
+            "bias": True,
+            "brood_frames": 5,
+            "store_frames": 6,
+            "chalk_brood": False,
+            "foul_brood": False,
+            "varroa_count": 10,
+            "temper": 5,
+            "notes": "Example notes",
+            "inspection_id": 1,
+        }
+        mock_observation_service.create_observation.assert_called_once_with(
+            queenright=True,
+            queen_cells=5,
+            bias=True,
+            brood_frames=5,
+            store_frames=6,
+            chalk_brood=False,
+            foul_brood=False,
+            varroa_count=10,
+            temper=5,
+            notes="Example notes",
+            inspection_id=1,
+        )
+
+    def test_create_observation_failure(
+        self, mock_observation_service: MagicMock
+    ) -> None:
+        mock_observation_service.create_observation.side_effect = ValueError()
+
+        response = client.post(
+            "/observations",
+            json={
+                "queenright": True,
+                "queen_cells": 5,
+                "bias": True,
+                "brood_frames": 5,
+                "store_frames": 6,
+                "chalk_brood": False,
+                "foul_brood": False,
+                "varroa_count": 10,
+                "temper": 5,
+                "notes": "Example notes",
+                "inspection_id": -999,
+            },
+        )
+        assert response.status_code == 422
+        mock_observation_service.create_observation.assert_called_once_with(
+            queenright=True,
+            queen_cells=5,
+            bias=True,
+            brood_frames=5,
+            store_frames=6,
+            chalk_brood=False,
+            foul_brood=False,
+            varroa_count=10,
+            temper=5,
+            notes="Example notes",
+            inspection_id=-999,
+        )

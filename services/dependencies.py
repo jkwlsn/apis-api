@@ -6,6 +6,7 @@ from repositories.apiary import ApiaryRepository
 from repositories.colony import ColonyRepository
 from repositories.hive import HiveRepository
 from repositories.inspection import InspectionRepository
+from repositories.observation import ObservationRepository
 from repositories.queen import QueenRepository
 from repositories.user import UserRepository
 from services.action import ActionService
@@ -13,6 +14,7 @@ from services.apiary import ApiaryService
 from services.colony import ColonyService
 from services.hive import HiveService
 from services.inspection import InspectionService
+from services.observation import ObservationService
 from services.queen import QueenService
 from services.user import UserService
 
@@ -56,3 +58,11 @@ def get_action_service() -> ActionService:
     action_repo = ActionRepository(db)
     inspection_repo = InspectionRepository(db)
     return ActionService(action_repo=action_repo, inspection_repo=inspection_repo)
+
+
+def get_observation_service() -> ObservationService:
+    observation_repo = ObservationRepository(db)
+    inspection_repo = InspectionRepository(db)
+    return ObservationService(
+        observation_repo=observation_repo, inspection_repo=inspection_repo
+    )

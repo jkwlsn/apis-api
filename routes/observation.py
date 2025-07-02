@@ -62,3 +62,14 @@ def update_observation(
         )
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e)) from e
+
+
+@router.delete("/observations/{observation_id}")
+def delete_observation(
+    observation_id: int,
+    service: Annotated[ObservationService, Depends(get_observation_service)],
+) -> bool:
+    try:
+        return service.delete_observation(observation_id=observation_id)
+    except ValueError as e:
+        raise HTTPException(status_code=404, detail=str(e)) from e

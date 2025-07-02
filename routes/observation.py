@@ -33,3 +33,18 @@ def get_observation_by_inspection_id(
             status_code=404, detail="No observations found for this inspection"
         )
     return observation
+
+
+@router.get("/observations/{observation_id}")
+def get_observation_by_observation_id(
+    observation_id: int,
+    service: Annotated[ObservationService, Depends(get_observation_service)],
+) -> ObservationRead:
+    observation = service.find_observation_by_observation_id(
+        observation_id=observation_id
+    )
+    if not observation:
+        raise HTTPException(
+            status_code=404, detail="No observations found for this inspection"
+        )
+    return observation

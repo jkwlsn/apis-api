@@ -224,3 +224,107 @@ class TestObservationRoutes:
 
         assert response.status_code == 404
         assert response.json()["detail"] == "No observations found for this inspection"
+
+    def test_update_observation_success(
+        self, mock_observation_service: MagicMock
+    ) -> None:
+        updated_observation = Observation(
+            observation_id=1,
+            queenright=True,
+            queen_cells=5,
+            bias=True,
+            brood_frames=5,
+            store_frames=6,
+            chalk_brood=False,
+            foul_brood=False,
+            varroa_count=10,
+            temper=5,
+            notes="Example notes",
+            inspection_id=2,
+        )
+        mock_observation_service.update_observation.return_value = updated_observation
+
+        response = client.post(
+            "/observations/1",
+            json={
+                "queenright": True,
+                "queen_cells": 5,
+                "bias": True,
+                "brood_frames": 5,
+                "store_frames": 6,
+                "chalk_brood": False,
+                "foul_brood": False,
+                "varroa_count": 10,
+                "temper": 5,
+                "notes": "Example notes",
+                "inspection_id": 2,
+            },
+        )
+
+        assert response.status_code == 200, f"Unexpected status: {response.text}"
+        assert response.json() == {
+            "observation_id": 1,
+            "queenright": True,
+            "queen_cells": 5,
+            "bias": True,
+            "brood_frames": 5,
+            "store_frames": 6,
+            "chalk_brood": False,
+            "foul_brood": False,
+            "varroa_count": 10,
+            "temper": 5,
+            "notes": "Example notes",
+            "inspection_id": 2,
+        }
+        mock_observation_service.update_observation.assert_called_once_with(
+            observation_id=1,
+            queenright=True,
+            queen_cells=5,
+            bias=True,
+            brood_frames=5,
+            store_frames=6,
+            chalk_brood=False,
+            foul_brood=False,
+            varroa_count=10,
+            temper=5,
+            notes="Example notes",
+            inspection_id=2,
+        )
+
+    def test_update_observation_failure(
+        self, mock_observation_service: MagicMock
+    ) -> None:
+        mock_observation_service.update_observation.side_effect = ValueError()
+
+        response = client.post(
+            "/observations/1",
+            json={
+                "queenright": True,
+                "queen_cells": 5,
+                "bias": True,
+                "brood_frames": 5,
+                "store_frames": 6,
+                "chalk_brood": False,
+                "foul_brood": False,
+                "varroa_count": 10,
+                "temper": 5,
+                "notes": "Example notes",
+                "inspection_id": -999,
+            },
+        )
+
+        assert response.status_code == 400
+        mock_observation_service.update_observation.assert_called_once_with(
+            observation_id=1,
+            queenright=True,
+            queen_cells=5,
+            bias=True,
+            brood_frames=5,
+            store_frames=6,
+            chalk_brood=False,
+            foul_brood=False,
+            varroa_count=10,
+            temper=5,
+            notes="Example notes",
+            inspection_id=-999,
+        )
